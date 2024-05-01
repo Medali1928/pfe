@@ -22,7 +22,7 @@ public class User {
 	private String userName;
 	private String password;
 	private String Email;
-	//hi
+	//hi bicha
 	@Enumerated(EnumType.STRING)
 	@Column(length = 20)
 	private ERole role;
