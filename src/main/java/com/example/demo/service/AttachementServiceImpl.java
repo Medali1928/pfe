@@ -10,7 +10,7 @@ import com.example.demo.entitys.Email;
 import com.example.demo.repository.AttachmentRepository;
 import com.example.demo.repository.EmailRepository;
 
-import jakarta.persistence.EntityNotFoundException;
+import javax.persistence.EntityNotFoundException;
 
 @Service
 public class AttachementServiceImpl implements AttachmentService {

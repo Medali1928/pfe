@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import com.example.demo.entitys.ClassificationRule;
 import com.example.demo.repository.ClassificationRuleRepository;
 
-import jakarta.persistence.EntityNotFoundException;
+import javax.persistence.EntityNotFoundException;
 
 @Service
 public class ClassificationRuleServiceImpl implements ClassificationRuleService {

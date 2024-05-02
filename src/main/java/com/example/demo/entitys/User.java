@@ -1,81 +1,106 @@
 package com.example.demo.entitys;
 
+import com.example.demo.token.Token;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+
+import java.util.Collection;
 import java.util.List;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-public class User {
-	@Id 
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private Long id_user;
-	private String userName;
-	private String password;
-	private String Email;
-	//hi bicha
-	@Enumerated(EnumType.STRING)
-	@Column(length = 20)
-	private ERole role;
-	@OneToMany(mappedBy = "user")
+@Table(name = "_user")
+public class User implements UserDetails {
+
+    @Id
+    @GeneratedValue
+    private Integer id;
+    private String firstname;
+    private String lastname;
+    private String email;
+    private String password;
+    private Integer numtel;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user")
+    private List<Token> tokens;
+
+
+    @Column
+    private String resetToken;
+    @OneToMany(mappedBy = "user")
     private List<Account> accounts;
-	public List<Account> getAccounts() {
+	
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return role.getAuthorities();
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    public Integer getNumtel() {
+        return numtel;
+    }
+
+    public void setNumtel(Integer numtel) {
+        this.numtel = numtel;
+    }
+    public List<Account> getAccounts() {
 		return accounts;
 	}
 	public void setAccounts(List<Account> accounts) {
 		this.accounts = accounts;
 	}
-	public Long getId_user() {
-		return id_user;
-	}
-	public void setId_user(Long id_user) {
-		this.id_user = id_user;
-	}
-	public String getUserName() {
-		return userName;
-	}
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
-	public String getPassword() {
-		return password;
-	}
-	public void setPassword(String password) {
-		this.password = password;
-	}
-	public String getEmail() {
-		return Email;
-	}
-	public void setEmail(String email) {
-		Email = email;
-	}
-	public ERole getRole() {
-		return role;
-	}
-	public void setRole(ERole role) {
-		this.role = role;
-	}
-	public User(Long id_user, String userName, String password, String email, ERole role, List<Account> accounts) {
-		super();
-		this.id_user = id_user;
-		this.userName = userName;
-		this.password = password;
-		Email = email;
-		this.role = role;
-		this.accounts = accounts;
-	}
-	public User() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-	
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
 }

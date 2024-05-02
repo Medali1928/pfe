@@ -7,7 +7,7 @@ import com.example.demo.entitys.Account;
 import com.example.demo.entitys.ScanRule;
 import com.example.demo.repository.ScanRuleRepository;
 
-import jakarta.persistence.EntityNotFoundException;
+import javax.persistence.EntityNotFoundException;
 
 @Service
 public class ScanRuleServiceImpl implements ScanRuleService{

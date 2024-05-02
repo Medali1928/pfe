@@ -15,7 +15,7 @@ import com.example.demo.entitys.Attachment;
 import com.example.demo.repository.EmailRepository;
 import com.example.demo.service.AttachmentService;
 
-import jakarta.persistence.EntityNotFoundException;
+import javax.persistence.EntityNotFoundException;
 
 @RestController
 @RequestMapping("/emails/{emailId}/attachments")

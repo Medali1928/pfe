@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.entitys.ClassificationRule;
 import com.example.demo.service.ClassificationRuleService;
 
-import jakarta.persistence.EntityNotFoundException;
+import javax.persistence.EntityNotFoundException;
 
 @RestController
 @RequestMapping("/classification-rules")

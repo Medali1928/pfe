@@ -5,35 +5,43 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.JoinColumn;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+
 @Entity
 public class Email {
-	@Id 
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private Long id;
+    @Id 
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    private Long id;
 
     private String sender;
-    private List<String> recipients;
+    
+    @ElementCollection
+    private Set<String> recipients; // Changed to Set<String> for storing email addresses
+
     private String subject;
     private String body;
     private LocalDate date;
     private String attachments;
-    private boolean archived;
-
+	private boolean archived;
     @OneToMany(mappedBy = "email")
     private List<Attachment> attachments1;
+
     @ManyToMany
     @JoinTable(name = "email_domain_entity",
                joinColumns = @JoinColumn(name = "email_id"),
                inverseJoinColumns = @JoinColumn(name = "domain_entity_id"))
     private Set<DomainEntity> domainEntities = new HashSet<>();
+
+    // Constructors, getters, setters
+
     public Set<DomainEntity> getDomainEntities() {
 		return domainEntities;
 	}
@@ -45,9 +53,9 @@ public class Email {
 	}
     public Email() {
 		super();
-		// TODO Auto-generated constructor stub
+		
 	}
-	public Email(Long id, String sender, List<String> recipients, String subject, String body, LocalDate date,
+	public Email(Long id, String sender, Set<String> recipients, String subject, String body, LocalDate date,
 			String attachments) {
 		super();
 		this.id = id;
@@ -70,10 +78,10 @@ public class Email {
 	public void setSender(String sender) {
 		this.sender = sender;
 	}
-	public List<String> getRecipients() {
+	public Set<String> getRecipients() {
 		return recipients;
 	}
-	public void setRecipients(List<String> recipients) {
+	public void setRecipients(Set<String> recipients) {
 		this.recipients = recipients;
 	}
 	public String getSubject() {
@@ -101,7 +109,7 @@ public class Email {
 		this.attachments = attachments;
 	}
 	public void setArchived(boolean b) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 

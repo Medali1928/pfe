@@ -1,42 +1,251 @@
 package com.example.demo.controller;
-import java.util.List;
 
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
+import com.example.demo.auth.passwordRequest;
+import com.example.demo.entitys.ResetPasswordRequest;
 import com.example.demo.entitys.User;
+import com.example.demo.repository.UserRepository;
+import com.example.demo.service.EmailService;
 import com.example.demo.service.UserService;
+import com.example.demo.utility.MailConstructor;
+import com.example.demo.utility.SecurityUtility;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
-@RequestMapping("user")
-public class UserController {
-@Autowired
-	UserService userserv;
-	@GetMapping("/users")
-	public List<User> getAllUsers() {
-		List<User> users=userserv.getAllUsers();
-		return users;
-		}
-	
-	@PostMapping("/addUser")
-	public User addUser(@RequestBody User usr) {
-		return userserv.addUser(usr);
-	}
-	@DeleteMapping("deleteuser/{iduser}")
-	public String deleteuser(@PathVariable Long iduser) {
-		return userserv.deleteUser(iduser);
-	}
-	@PutMapping("updateUser/{id}")
-	public User UpdateUser(@RequestBody User user,@PathVariable Long id) {
-		return userserv.UpdateUser(user, id);
-	}
 
+@RequestMapping("/api")
+@RequiredArgsConstructor
+public class  UserController {
+    @Autowired
+    private JavaMailSender mailSender;
+
+    @Autowired
+    private MailConstructor mailConstructor;
+    private final PasswordEncoder passwordEncoder;
+    @Autowired
+    private EmailService emailService;
+    @Autowired
+    private UserService userService;
+    private UserRepository userRepository; // Assurez-vous que UserRepository est correctement configuré
+
+
+    @CrossOrigin(origins = "http://localhost:8088")
+
+    @GetMapping(value="/ListUser")
+
+    public List<User> users() {
+        List<User> users = userService.findAll();
+        return users;
+
+    }
+    @CrossOrigin(origins = "http://localhost:8088")
+
+    @GetMapping("/UserInfo")
+    public User getUserInfo(@RequestParam("id") Integer id) {
+        User user1 = new User();
+        java.util.Optional<User> user = userService.findById(id);
+  user1.setId(user.get().getId());
+  user1.setFirstname(user.get().getFirstname());
+  user1.setEmail(user.get().getEmail());
+  user1.setNumtel(user.get().getNumtel());
+  user1.setLastname(user.get().getLastname());
+  user1.setRole(user.get().getRole());
+  user1.setPassword(user.get().getPassword());
+        return user1;
+    }
+    @CrossOrigin(origins = "http://localhost:8088")
+
+    @GetMapping("/email/{e}")
+    public Optional<User> findByEmail(@PathVariable("e") String emaol) {
+
+        return userService.findByEmail(emaol);
+    }
+    @CrossOrigin(origins = "http://localhost:8088")
+
+    @PostMapping("/AddUser")
+    public User addUser(@RequestBody User user) {
+        // Traiter et valider le user reçue
+
+        User nouvelleUser = new User();
+        nouvelleUser.setPassword(user.getPassword());
+        nouvelleUser.setFirstname(user.getFirstname());
+        nouvelleUser.setLastname(user.getLastname());
+        nouvelleUser.setEmail(user.getEmail());
+        nouvelleUser.setNumtel(user.getNumtel());
+
+
+        // Sauvegarder la nouvelle maison dans la base de données
+
+        nouvelleUser = userService.save(nouvelleUser);
+
+        return nouvelleUser;
+    }
+    @CrossOrigin(origins = "http://localhost:8088")
+
+    @DeleteMapping("/removeUser/{id}")
+    public ResponseEntity<String> removeOne(@PathVariable("id") Integer id) {
+        userService.removeOne(id);
+        return ResponseEntity.ok("User removed successfully");
+    }
+    @CrossOrigin(origins = "http://localhost:8088")
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
+        String email = resetPasswordRequest.getEmail();
+
+        // Check if the user exists with the given email
+        Optional<User> optionalUser = userService.findByEmail(email);
+        if (!optionalUser.isPresent()) {
+            return ResponseEntity.badRequest().body("User not found with the given email.");
+        }
+
+        // If the user is present, get the User object from the Optional
+        User user = optionalUser.get();
+
+        // Generate a password reset token and save it to the user's record in the database
+        String resetToken = UUID.randomUUID().toString();
+        user.setResetToken(resetToken);
+        userService.saveUser(user);
+
+        // Send an email to the user with the password reset link containing the resetToken
+        // Here, you can use a service to send the email, like JavaMailSender, or use a third-party service.
+        emailService.sendPasswordResetEmail(email, resetToken);
+
+        return ResponseEntity.ok("Password reset link sent to your email.");
+    }
+    @CrossOrigin(origins = "http://localhost:8088")
+    @RequestMapping("/forget_password")
+    public String forgetPassword(HttpServletRequest request, @RequestBody String email, Model model) {
+
+        model.addAttribute("classActiveForgetPassword", true);
+
+        Optional<User> user1 = userService.findByEmail(email);
+        if (user1 .isPresent()) {
+        User user = user1.get();
+        if (user == null) {
+            model.addAttribute("emailNotExist", true);
+            return "forget_password";
+        }
+
+        String password = SecurityUtility.randomPassword();
+
+        String encryptedPassword = SecurityUtility.passwordEncoder().encode(password);
+        user.setPassword(encryptedPassword);
+
+        userService.save(user);
+
+        String token = UUID.randomUUID().toString();
+        userService.createPasswordResetTokenForUser(user, token);
+
+        String appUrl = "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+
+        SimpleMailMessage newEmail = mailConstructor.constructResetTokenEmail(appUrl, request.getLocale(), token, user,
+                password);
+
+        mailSender.send(newEmail);
+
+        model.addAttribute("forgetPasswordEmailSent", "true");
+
+        return "forget_password";
+    }return "forget_password";
+    }
+
+
+
+
+
+  /*    @PutMapping("/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable("id") Integer id, @RequestBody User updatedUser) {
+        User user = userService.findById(id);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Update the user's properties
+        user.setName(updatedUser.getName());
+        user.setEmail(updatedUser.getEmail());
+        // Update other properties as needed
+
+        User savedUser = userService.saveUser(user); // Save the updated user
+
+        return ResponseEntity.ok(savedUser);
+    }
+*/
+
+    @CrossOrigin(origins = "http://localhost:8088")
+    @GetMapping("/api/check-email-uniqueness")
+
+    public ResponseEntity<Boolean> checkEmailUnique(@RequestParam String email) {
+        boolean isUnique = userRepository.findByEmail(email) == null;
+        return ResponseEntity.ok(isUnique);
+    }
+
+  @CrossOrigin(origins = "http://localhost:8088")
+
+    @PutMapping("/modifieruser/{id}")
+    public User updateMaison(@PathVariable("id") Integer id, @RequestBody User maisonDetails) {
+        Optional<User> optionalMaison = userService.findById(id);
+
+        if (optionalMaison.isPresent()) {
+            User maison = optionalMaison.get();
+
+            // Mettre à jour les champs de la maison avec les détails reçus
+            maison.setFirstname(maisonDetails.getFirstname());
+            maison.setLastname(maisonDetails.getLastname());
+            maison.setEmail(maisonDetails.getEmail());
+            maison.setNumtel(maisonDetails.getNumtel());
+
+            // Enregistrer la maison mise à jour dans la base de données
+            maison = userService.save(maison);
+
+            return maison;
+        } else {
+            // Ou renvoyer une réponse appropriée en cas de maison non trouvée
+            return null;
+        }
+    }
+
+
+@CrossOrigin(origins = "http://localhost:8088")
+
+
+    @PutMapping("/updatepassword/{id}")
+    public User updatePassword(@PathVariable("id") Integer id, @RequestBody passwordRequest maisonDetails) {
+        Optional<User> optionalMaison = userService.findById(id);
+
+        if (optionalMaison.isPresent()) {
+            User maison = optionalMaison.get();
+
+            // Mettre à jour les champs de la maison avec les détails reçus
+            maison.setPassword(passwordEncoder.encode(maisonDetails.getPassword()));
+
+
+            // Enregistrer la maison mise à jour dans la base de données
+            maison = userService.save(maison);
+
+            return maison;
+        } else {
+            // Ou renvoyer une réponse appropriée en cas de maison non trouvée
+            return null;
+        }
+    }
+    @CrossOrigin(origins = "http://localhost:8088")
+    @GetMapping("/user/searchh")
+    public ResponseEntity<List<User>> searchByPropertyName(@RequestParam String lastname) {
+        List<User> maisons = userService.searchByPropertyName(lastname);
+        return ResponseEntity.ok(maisons);
+    }
 
 }

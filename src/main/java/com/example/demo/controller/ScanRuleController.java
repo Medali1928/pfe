@@ -13,7 +13,7 @@ import com.example.demo.entitys.Account;
 import com.example.demo.entitys.ScanRule;
 import com.example.demo.service.ScanRuleService;
 
-import jakarta.persistence.EntityNotFoundException;
+import javax.persistence.EntityNotFoundException;
 
 @RestController
 @RequestMapping("/scan-rules")

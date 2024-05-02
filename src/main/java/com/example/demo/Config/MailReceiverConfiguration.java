@@ -1,7 +1,7 @@
 package com.example.demo.Config;
 
 
-
+/* 
 import com.example.demo.service.ReceiveMailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,4 +75,4 @@ public class MailReceiverConfiguration {
         return imapMailReceiver;
     }
 
-}
+}*/
