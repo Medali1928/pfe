@@ -1,6 +1,5 @@
 package com.example.demo.service;
 
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.util.MimeMessageParser;
@@ -18,13 +17,15 @@ import java.util.Arrays;
 
 @Service
 public class ReceiveMailServiceImpl implements ReceiveMailService {
+
     private static final Logger log = LoggerFactory.getLogger(ReceiveMailServiceImpl.class);
 
     private static final String DOWNLOAD_FOLDER = "data";
 
     private static final String DOWNLOADED_MAIL_FOLDER = "DOWNLOADED";
-  @Override
-    public void handleReceivedMail( MimeMessage receivedMessage) {
+
+    @Override
+    public void handleReceivedMail(MimeMessage receivedMessage) {
         try {
 
             Folder folder = receivedMessage.getFolder();

@@ -1,7 +1,7 @@
 package com.example.demo.Config;
 
 
-/* 
+
 import com.example.demo.service.ReceiveMailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +20,7 @@ import org.springframework.messaging.Message;
 
 import javax.mail.internet.MimeMessage;
 import java.util.Properties;
+
 @Configuration
 @EnableIntegration
 public class MailReceiverConfiguration {
@@ -75,4 +76,4 @@ public class MailReceiverConfiguration {
         return imapMailReceiver;
     }
 
-}*/
+}

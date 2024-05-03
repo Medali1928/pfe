@@ -2,7 +2,13 @@ package com.example.demo.service;
 
 
 
-public interface ReceiveMailService{
-     void handleReceivedMail(javax.mail.internet.MimeMessage mimeMessage);
+
+import javax.mail.internet.MimeMessage;
+
+public interface ReceiveMailService {
+
+    void handleReceivedMail(MimeMessage message);
+
+   
 
 }
