@@ -17,8 +17,7 @@ import javax.persistence.OneToMany;
 
 @Entity
 public class Email {
-    @Id 
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Id
     private Long id;
 
     private String sender;

@@ -56,7 +56,7 @@ public class MailReceiverConfiguration {
     }
 
     @Bean
-    public MailReceiver imapMailReceiver(@Value("imaps://${mail.imap.username}:${mail.imap.password}@${mail.imap.host}:${mail.imap.port}/inbox") String storeUrl) {
+    public MailReceiver imapMailReceiver(@Value("imaps://alouloumed21%40gmail.com:${mail.imap.password}@${mail.imap.host}:${mail.imap.port}/inbox") String storeUrl) {
         log.info("IMAP connection url: {}", storeUrl);
 
         ImapMailReceiver imapMailReceiver = new ImapMailReceiver(storeUrl);

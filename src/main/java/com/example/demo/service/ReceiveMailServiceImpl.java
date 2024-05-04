@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.entitys.Email;
+
 import javax.mail.*;
 import javax.mail.internet.MimeMessage;
 import java.io.*;
@@ -26,8 +28,10 @@ public class ReceiveMailServiceImpl implements ReceiveMailService {
 
     @Override
     public void handleReceivedMail(MimeMessage receivedMessage) {
-        try {
-
+        
+           // extractMail(receivedMessage);
+           log.info("toto: handle");
+           try {
             Folder folder = receivedMessage.getFolder();
             folder.open(Folder.READ_WRITE);
 
@@ -35,21 +39,25 @@ public class ReceiveMailServiceImpl implements ReceiveMailService {
             fetchMessagesInFolder(folder, messages);
 
             Arrays.asList(messages).stream().filter(message -> {
+                log.info("toto: "+message.getSubject() +"content: "+message.getContent().toString());
                 MimeMessage currentMessage = (MimeMessage) message;
                 try {
                     return currentMessage.getMessageID().equalsIgnoreCase(receivedMessage.getMessageID());
+                    //Email()
                 } catch (MessagingException e) {
-                    log.error("Error occurred during process message", e);
+                    log.error("Totot Error occurred during process message", e);
                     return false;
                 }
             }).forEach(this::extractMail);
 
+            log.info("toto: download");
             copyMailToDownloadedFolder(receivedMessage, folder);
 
+            log.info("toto: closed");
             folder.close(true);
 
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("totoo error"+e.getMessage(), e);
         }
     }
 
@@ -81,8 +89,8 @@ public class ReceiveMailServiceImpl implements ReceiveMailService {
 
             downloadAttachmentFiles(mimeMessageParser);
 
-            // To delete downloaded email
-            messageToExtract.setFlag(Flags.Flag.DELETED, true);
+            // saveEmailToDatabase()
+            
 
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -90,12 +98,13 @@ public class ReceiveMailServiceImpl implements ReceiveMailService {
     }
 
     private void showMailContent(MimeMessageParser mimeMessageParser) throws Exception {
-        log.debug("From: {} to: {} | Subject: {}", mimeMessageParser.getFrom(), mimeMessageParser.getTo(), mimeMessageParser.getSubject());
-        log.debug("Mail content: {}", mimeMessageParser.getPlainContent());
+        log.info("From: {} to: {} | Subject: {}", mimeMessageParser.getFrom(), mimeMessageParser.getTo(), mimeMessageParser.getSubject());
+        log.info("Mail content: {}", mimeMessageParser.getPlainContent());
+        log.info("Received Date: {}", mimeMessageParser.getMimeMessage().getReceivedDate());
     }
 
     private void downloadAttachmentFiles(MimeMessageParser mimeMessageParser) {
-        log.debug("Email has {} attachment files", mimeMessageParser.getAttachmentList().size());
+        log.info("Email has {} attachment files", mimeMessageParser.getAttachmentList().size());
         mimeMessageParser.getAttachmentList().forEach(dataSource -> {
             if (StringUtils.isNotBlank(dataSource.getName())) {
                 String rootDirectoryPath = new FileSystemResource("").getFile().getAbsolutePath();
