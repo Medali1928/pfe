@@ -2,7 +2,7 @@ package com.example.demo.Config;
 
 
 
-import com.example.demo.service.ReceiveMailService;
+//import com.example.demo.service.ReceiveMailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,7 +20,7 @@ import org.springframework.messaging.Message;
 
 import javax.mail.internet.MimeMessage;
 import java.util.Properties;
-
+/* 
 @Configuration
 @EnableIntegration
 public class MailReceiverConfiguration {
@@ -60,7 +60,7 @@ public class MailReceiverConfiguration {
         log.info("IMAP connection url: {}", storeUrl);
 
         ImapMailReceiver imapMailReceiver = new ImapMailReceiver(storeUrl);
-        imapMailReceiver.setShouldMarkMessagesAsRead(true);
+        imapMailReceiver.setShouldMarkMessagesAsRead(false);
         imapMailReceiver.setShouldDeleteMessages(false);
         imapMailReceiver.setMaxFetchSize(10);
         // imapMailReceiver.setAutoCloseFolder(true);
@@ -76,4 +76,4 @@ public class MailReceiverConfiguration {
         return imapMailReceiver;
     }
 
-}
+}*/

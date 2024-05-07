@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.mail.Address;
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,14 +18,17 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 
 @Entity
+
 public class Email {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+     
     private String sender;
     
-    @ElementCollection
-    private Set<String> recipients; // Changed to Set<String> for storing email addresses
+	
+    private String recipients;
+    
 
     private String subject;
     private String body;
@@ -54,7 +59,7 @@ public class Email {
 		super();
 		
 	}
-	public Email(Long id, String sender, Set<String> recipients, String subject, String body, LocalDate date,
+	public Email(Long id, String sender, String recipients, String subject, String body, LocalDate date,
 			String attachments) {
 		super();
 		this.id = id;
@@ -77,10 +82,10 @@ public class Email {
 	public void setSender(String sender) {
 		this.sender = sender;
 	}
-	public Set<String> getRecipients() {
+	public String getRecipients() {
 		return recipients;
 	}
-	public void setRecipients(Set<String> recipients) {
+	public void setRecipients(String recipients) {
 		this.recipients = recipients;
 	}
 	public String getSubject() {
@@ -98,8 +103,8 @@ public class Email {
 	public LocalDate getDate() {
 		return date;
 	}
-	public void setDate(LocalDate date) {
-		this.date = date;
+	public void setDate(LocalDate date2) {
+		this.date = date2;
 	}
 	public String getAttachments() {
 		return attachments;
@@ -111,5 +116,11 @@ public class Email {
 		
 		
 	}
+	/*public void setRecipients(List<String> recipients) {
+		// Implémentez la logique pour définir les destinataires de manière appropriée
+		this.recipients = recipients;
+	}*/
+	
+	
 
 }

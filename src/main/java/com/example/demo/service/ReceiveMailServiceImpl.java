@@ -7,31 +7,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
-
 import com.example.demo.entitys.Email;
-
+import com.example.demo.repository.EmailRepository;
 import javax.mail.*;
 import javax.mail.internet.MimeMessage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.Arrays;
-
+import java.util.HashSet;
+/* 
 @Service
 public class ReceiveMailServiceImpl implements ReceiveMailService {
 
+    private final EmailRepository emailRepository;
     private static final Logger log = LoggerFactory.getLogger(ReceiveMailServiceImpl.class);
-
     private static final String DOWNLOAD_FOLDER = "data";
-
     private static final String DOWNLOADED_MAIL_FOLDER = "DOWNLOADED";
+
+    public ReceiveMailServiceImpl(EmailRepository emailRepository) {
+        this.emailRepository = emailRepository;
+    }
 
     @Override
     public void handleReceivedMail(MimeMessage receivedMessage) {
-        
-           // extractMail(receivedMessage);
-           log.info("toto: handle");
-           try {
+        log.info("toto: handle");
+        try {
             Folder folder = receivedMessage.getFolder();
             folder.open(Folder.READ_WRITE);
 
@@ -39,13 +41,12 @@ public class ReceiveMailServiceImpl implements ReceiveMailService {
             fetchMessagesInFolder(folder, messages);
 
             Arrays.asList(messages).stream().filter(message -> {
-                log.info("toto: "+message.getSubject() +"content: "+message.getContent().toString());
+                log.info("toto: " + message);
                 MimeMessage currentMessage = (MimeMessage) message;
                 try {
                     return currentMessage.getMessageID().equalsIgnoreCase(receivedMessage.getMessageID());
-                    //Email()
                 } catch (MessagingException e) {
-                    log.error("Totot Error occurred during process message", e);
+                    log.error("Error occurred during process message", e);
                     return false;
                 }
             }).forEach(this::extractMail);
@@ -57,7 +58,7 @@ public class ReceiveMailServiceImpl implements ReceiveMailService {
             folder.close(true);
 
         } catch (Exception e) {
-            log.error("totoo error"+e.getMessage(), e);
+            log.error("Error: " + e.getMessage(), e);
         }
     }
 
@@ -85,15 +86,18 @@ public class ReceiveMailServiceImpl implements ReceiveMailService {
             final MimeMessage messageToExtract = (MimeMessage) message;
             final MimeMessageParser mimeMessageParser = new MimeMessageParser(messageToExtract).parse();
 
+            Email email = new Email();
+            email.setSender(mimeMessageParser.getFrom());
+            email.setRecipients(new HashSet<>(mimeMessageParser.getTo()));
+            email.setSubject(mimeMessageParser.getSubject());
+            email.setBody(mimeMessageParser.getPlainContent());
+            email.setDate(LocalDate.now());
+            emailRepository.save(email);
             showMailContent(mimeMessageParser);
-
             downloadAttachmentFiles(mimeMessageParser);
 
-            // saveEmailToDatabase()
-            
-
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("Error: " + e.getMessage(), e);
         }
     }
 
@@ -116,10 +120,7 @@ public class ReceiveMailServiceImpl implements ReceiveMailService {
 
                 log.info("Save attachment file to: {}", downloadedAttachmentFilePath);
 
-                try (
-                        OutputStream out = new FileOutputStream(downloadedAttachmentFile)
-                        // InputStream in = dataSource.getInputStream()
-                ) {
+                try (OutputStream out = new FileOutputStream(downloadedAttachmentFile)) {
                     InputStream in = dataSource.getInputStream();
                     IOUtils.copy(in, out);
                 } catch (IOException e) {
@@ -138,5 +139,11 @@ public class ReceiveMailServiceImpl implements ReceiveMailService {
             }
         }
     }
-    
+
+    @Override
+    public void save(Email email) {
+        emailRepository.save(email);
+        
+    }
 }
+*/
