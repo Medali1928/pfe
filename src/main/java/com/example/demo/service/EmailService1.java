@@ -2,21 +2,27 @@ package com.example.demo.service;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
+import javax.mail.Address;
+import javax.mail.BodyPart;
+import javax.mail.Folder;
+import javax.mail.Message;
+import javax.mail.Multipart;
+import javax.mail.Part;
+import javax.mail.Session;
+import javax.mail.Store;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.entitys.Email;
 import com.example.demo.repository.EmailRepository;
-import javax.mail.*;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
 
-import javax.mail.internet.MimeMessage;
 @Service
 public class EmailService1 {
     
@@ -60,11 +66,26 @@ public class EmailService1 {
             e.printStackTrace();
         }
     }
- private void saveMessageToDatabase(Message message) {
+    
+    private void saveMessageToDatabase(Message message) {
         try {
             // Extraire les informations de l'e-mail
             String subject = message.getSubject();
             String sender = InternetAddress.toString(message.getFrom());
+
+            // Extraire la date du message
+            LocalDate date = null;
+            Date sentDate = message.getSentDate();
+            if (sentDate != null) {
+                date = sentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            }
+
+            // Vérifier si un e-mail avec le même sujet et la même date existe déjà dans la base de données
+            Email existingEmail = emailRepository.findBySubjectAndDate(subject, date);
+            if (existingEmail != null) {
+                // Si un e-mail existe déjà avec le même sujet et la même date, ne rien faire
+                return;
+            }
 
             // Extraire le corps du message
             String body = "";
@@ -82,22 +103,7 @@ public class EmailService1 {
             }
 
             // Extraire les destinataires
-            String recipients = "";
-            if (message.getAllRecipients() != null) {
-                for (Address recipient : message.getAllRecipients()) {
-                    recipients += recipient.toString() + ", ";
-                }
-                // Supprimer la virgule et l'espace à la fin
-                recipients = recipients.substring(0, recipients.length() - 2);
-            }
-            
-
-            // Extraire la date du message
-           LocalDate date = null;
-           Date sentDate = message.getSentDate();
-              if (sentDate != null) {
-                  date = sentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-}
+            String recipients = getAddressString(message.getAllRecipients());
 
             // Extraire les pièces jointes
             String attachments = "";
@@ -130,6 +136,7 @@ public class EmailService1 {
             e.printStackTrace();
         }
     }
+    
     // Méthode utilitaire pour convertir Address[] en String
     private String getAddressString(Address[] addresses) {
         if (addresses == null || addresses.length == 0) {
@@ -146,7 +153,19 @@ public class EmailService1 {
         // Supprimer la virgule et l'espace à la fin
         return result.substring(0, result.length() - 2);
     }
+    public List<Email> searchEmails(String sender, String subject, LocalDate startDate, LocalDate endDate) {
+        // Vérifiez si les paramètres sont nuls et ajustez-les si nécessaire
+        if (sender == null) sender = "";
+        if (subject == null) subject = "";
+        if (startDate == null) startDate = LocalDate.MIN;
+        if (endDate == null) endDate = LocalDate.MAX;
     
-   
-
+        // Appelez la méthode de recherche dans le repository avec les paramètres ajustés
+        return emailRepository.findBySenderContainingIgnoreCaseAndSubjectContainingIgnoreCaseAndDateBetween(
+                sender, subject, startDate, endDate);
+    }
+    public Email searchByEmail(String email) {
+        return emailRepository.findBySender(email);
+    }
+    
 }

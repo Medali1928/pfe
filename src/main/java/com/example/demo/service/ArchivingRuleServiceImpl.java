@@ -15,24 +15,24 @@ import com.example.demo.repository.EmailRepository;
 @Service
 public class ArchivingRuleServiceImpl implements ArchivingRuleService {
 
-	 @Autowired
-	    private EmailRepository emailRepository;
+    @Autowired
+    private EmailRepository emailRepository;
 
-	    @Autowired
-	    private ArchivingRuleRepository archivingRuleRepository;
-	@Override
-	public void archiverEmailsSelonRegles() {
-		 List<ArchivingRule> regles = archivingRuleRepository.findAll();
-		    for (ArchivingRule regle : regles) {
-		        // Calcul de la date limite (1 an dans le passé)
-		        LocalDate dateLimite = LocalDate.now().minus(regle.getRetentionPeriod(), ChronoUnit.YEARS);
-		        List<Email> emailsAarchiver = emailRepository.findByDateBeforeAndArchivedFalse(dateLimite);
-		        for (Email email : emailsAarchiver) {
-		            // Archivage de l'email
-		            email.setArchived(true);
-		            emailRepository.save(email);
-		        }
-		    }
-	}
+    @Autowired
+    private ArchivingRuleRepository archivingRuleRepository;
+
+    @Override
+    public void archiverEmailsSelonRegles() {
+        List<ArchivingRule> regles = archivingRuleRepository.findAll();
+        for (ArchivingRule regle : regles) {
+            // Calcul de la date limite (1 an dans le passé par rapport à la date actuelle)
+            LocalDate dateLimite = LocalDate.now().minus(1, ChronoUnit.YEARS);
+            List<Email> emailsAarchiver = emailRepository.findByDateBeforeAndArchivedFalse(dateLimite);
+            for (Email email : emailsAarchiver) {
+                // Archivage de l'email
+                email.setArchived(true);
+                emailRepository.save(email);
+            }
+        }
+    }
 }
-

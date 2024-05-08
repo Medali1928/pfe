@@ -1,6 +1,7 @@
 package com.example.demo.repository;
 
 import java.time.LocalDate;
+
 import java.util.List;
 
 
@@ -14,11 +15,15 @@ import com.example.demo.entitys.Email;
 @Repository
 public interface EmailRepository extends JpaRepository <Email,Long>{
 	List<Email> findByDateBeforeAndArchivedFalse(LocalDate dateLimite);
-	//Email save(Email email);
+	Email findBySubjectAndDate(String subject, LocalDate date);
+	List<Email> findBySenderContainingIgnoreCaseAndSubjectContainingIgnoreCaseAndDateBetween(
+		String sender, String subject, LocalDate startDate, LocalDate endDate);
+	Email findBySender(String sender);
+}
 
    
 	
 	
 	
 
-}
+
