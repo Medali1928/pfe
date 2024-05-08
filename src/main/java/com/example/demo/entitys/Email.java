@@ -55,6 +55,9 @@ public class Email {
 	public void setAttachments(List<Attachment> attachments1) {
 		this.attachments1 = attachments1;
 	}
+	public List<Attachment> getAttachments1() {
+        return attachments1;
+    }
     public Email() {
 		super();
 		

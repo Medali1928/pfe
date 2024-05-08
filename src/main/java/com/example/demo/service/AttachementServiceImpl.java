@@ -15,16 +15,16 @@ import javax.persistence.EntityNotFoundException;
 @Service
 public class AttachementServiceImpl implements AttachmentService {
 	@Autowired
-	AttachmentRepository AttachmentRepo;
+	AttachmentRepository attachmentRepo;
 	 @Autowired
-	 EmailRepository EmailRepo;
+	 EmailRepository emailRepo;
 
 	@Override
 	public Optional<Attachment> getAttachmentByEmailIdAndAttachmentId(Long emailId, Long attachmentId) {
-		Optional<Email> emailOptional = EmailRepo.findById(emailId);
+        Optional<Email> emailOptional = emailRepo.findById(emailId);
         if (emailOptional.isPresent()) {
             Email email = emailOptional.get();
-            return email.getAttachments().stream()
+            return email.getAttachments1().stream()
                     .filter(attachment -> attachment.getId().equals(attachmentId))
                     .findFirst();
         } else {
@@ -35,11 +35,11 @@ public class AttachementServiceImpl implements AttachmentService {
 
 	@Override
 	public void deleteAttachment(Long Id) {
-		Attachment attachment = AttachmentRepo.findById(Id)
+		Attachment attachment = attachmentRepo.findById(Id)
                 .orElseThrow(() -> new EntityNotFoundException("Attachment not found with id: " + Id));
 
         // Supprimer l'attachement de la base de données
-		AttachmentRepo.delete(attachment);
+		attachmentRepo.delete(attachment);
 		
 	}
 

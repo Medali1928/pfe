@@ -58,10 +58,10 @@ public class  UserController {
         User user1 = new User();
         java.util.Optional<User> user = userService.findById(id);
   user1.setId(user.get().getId());
-  user1.setFirstname(user.get().getFirstname());
+  
   user1.setEmail(user.get().getEmail());
-  user1.setNumtel(user.get().getNumtel());
-  user1.setLastname(user.get().getLastname());
+  
+  user1.setUsername(user.get().getUsername());
   user1.setRole(user.get().getRole());
   user1.setPassword(user.get().getPassword());
         return user1;
@@ -69,9 +69,9 @@ public class  UserController {
     @CrossOrigin(origins = "http://localhost:8088")
 
     @GetMapping("/email/{e}")
-    public Optional<User> findByEmail(@PathVariable("e") String emaol) {
+    public Optional<User> findByEmail(@PathVariable("e") String email) {
 
-        return userService.findByEmail(emaol);
+        return userService.findByEmail(email);
     }
     @CrossOrigin(origins = "http://localhost:8088")
 
@@ -81,10 +81,9 @@ public class  UserController {
 
         User nouvelleUser = new User();
         nouvelleUser.setPassword(user.getPassword());
-        nouvelleUser.setFirstname(user.getFirstname());
-        nouvelleUser.setLastname(user.getLastname());
+        
         nouvelleUser.setEmail(user.getEmail());
-        nouvelleUser.setNumtel(user.getNumtel());
+        nouvelleUser.setUsername(user.getUsername());
 
 
         // Sauvegarder la nouvelle maison dans la base de données
@@ -166,23 +165,7 @@ public class  UserController {
 
 
 
-  /*    @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable("id") Integer id, @RequestBody User updatedUser) {
-        User user = userService.findById(id);
-        if (user == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        // Update the user's properties
-        user.setName(updatedUser.getName());
-        user.setEmail(updatedUser.getEmail());
-        // Update other properties as needed
-
-        User savedUser = userService.saveUser(user); // Save the updated user
-
-        return ResponseEntity.ok(savedUser);
-    }
-*/
+   
 
     @CrossOrigin(origins = "http://localhost:8088")
     @GetMapping("/api/check-email-uniqueness")
@@ -202,10 +185,10 @@ public class  UserController {
             User maison = optionalMaison.get();
 
             // Mettre à jour les champs de la maison avec les détails reçus
-            maison.setFirstname(maisonDetails.getFirstname());
-            maison.setLastname(maisonDetails.getLastname());
+           
+            maison.setUsername(maisonDetails.getUsername());
             maison.setEmail(maisonDetails.getEmail());
-            maison.setNumtel(maisonDetails.getNumtel());
+           
 
             // Enregistrer la maison mise à jour dans la base de données
             maison = userService.save(maison);
@@ -243,8 +226,8 @@ public class  UserController {
     }
     @CrossOrigin(origins = "http://localhost:8088")
     @GetMapping("/user/searchh")
-    public ResponseEntity<List<User>> searchByPropertyName(@RequestParam String lastname) {
-        List<User> maisons = userService.searchByPropertyName(lastname);
+    public ResponseEntity<List<User>> searchByPropertyName(@RequestParam String username) {
+        List<User> maisons = userService.searchByPropertyName(username);
         return ResponseEntity.ok(maisons);
     }
 

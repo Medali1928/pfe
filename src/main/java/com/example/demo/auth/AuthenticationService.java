@@ -36,20 +36,16 @@ public class AuthenticationService {
 
     public AuthenticationResponse register(RegisterRequest request) {
         var user = User.builder()
-                .firstname(request.getFirstname())
-                .lastname(request.getLastname())
+                
                 .email(request.getEmail())
-                .numtel(request.getNumtel())
+                .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.valueOf("ADMIN"))
                 .build();
         var savedUser = repository.save(user);
-      //  var jwtToken = jwtService.generateToken(user);
-        //var refreshToken = jwtService.generateRefreshToken(user);
-      //  saveUserToken(savedUser, jwtToken);
+      
         return AuthenticationResponse.builder()
-               // .accessToken(jwtToken)
-//                .refreshToken(refreshToken)
+   
                 .build();
     }
 
@@ -127,11 +123,10 @@ public class AuthenticationService {
 
         if (existingUser == false) {
             var user = User.builder()
-                    .firstname(request.getFirstname())
-                    .lastname(request.getLastname())
+                    
                     .email(request.getEmail())
-                            .
-                    numtel(request.getNumtel())
+                            
+                    .username(request.getUsername())
                     .password(passwordEncoder.encode(request.getPassword()))
                     .role(Role.valueOf("USER"))
                     .build();

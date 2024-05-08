@@ -35,11 +35,10 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue
     private Integer id;
-    private String firstname;
-    private String lastname;
+    private String username;
     private String email;
     private String password;
-    private Integer numtel;
+    
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -66,16 +65,18 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
+        return username;
+    }
+   
+    public String getEmail() {
         return email;
     }
+    
+   
 
-    public Integer getNumtel() {
-        return numtel;
-    }
+    
 
-    public void setNumtel(Integer numtel) {
-        this.numtel = numtel;
-    }
+    
     public List<Account> getAccounts() {
 		return accounts;
 	}

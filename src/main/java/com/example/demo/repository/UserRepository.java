@@ -20,6 +20,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByEmail(String email);
    // PasswordResetToken getPasswordResetToken(final String token);
     User findByResetToken(String resetToken);
-    @Query("SELECT m FROM User m WHERE m.lastname LIKE %:lastname%")
-    public List<User> searchByPropertyName(@Param("lastname") String lastname);
+    @Query("SELECT m FROM User m WHERE m.username LIKE %:username%")
+    public List<User> searchByPropertyName(@Param("username") String username);
 }
