@@ -47,6 +47,8 @@ public class SecurityConfiguration {
                         "/webjars/**",
                         "/swagger-ui.html"
                 ).permitAll()
+                .antMatchers("/archiver/emails").permitAll()
+
 
 
                 .antMatchers("/api/v1/management/**").hasAnyRole(ADMIN.name(), MANAGER.name())
@@ -82,5 +84,7 @@ public class SecurityConfiguration {
 
         return http.build();
     }
+   
+   
 
 }

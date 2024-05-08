@@ -2,8 +2,10 @@ package com.example.demo.service;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 
 import javax.mail.Address;
@@ -22,6 +24,14 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.entitys.Email;
 import com.example.demo.repository.EmailRepository;
+
+import org.apache.commons.io.IOUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+
 
 @Service
 public class EmailService1 {
@@ -66,6 +76,10 @@ public class EmailService1 {
             e.printStackTrace();
         }
     }
+    private String extractTextFromHtml(String htmlContent) {
+        Document doc = Jsoup.parseBodyFragment(htmlContent);
+        return doc.text();
+    }
     
     private void saveMessageToDatabase(Message message) {
         try {
@@ -87,26 +101,54 @@ public class EmailService1 {
                 return;
             }
 
-            // Extraire le corps du message
-            String body = "";
-            Object content = message.getContent();
-            if (content instanceof String) {
-                body = (String) content;
-            } else if (content instanceof Multipart) {
-                Multipart multipart = (Multipart) content;
-                for (int i = 0; i < multipart.getCount(); i++) {
-                    BodyPart bodyPart = multipart.getBodyPart(i);
-                    if (bodyPart.getContentType().startsWith("text/plain")) {
-                        body += bodyPart.getContent().toString();
-                    }
+           // Extraire le corps du message
+        /*String body = "";
+        Object content = message.getContent();
+        if (content instanceof String) {
+            body = (String) content;
+        } else if (content instanceof Multipart) {
+            Multipart multipart = (Multipart) content;
+            for (int i = 0; i < multipart.getCount(); i++) {
+                BodyPart bodyPart = multipart.getBodyPart(i);
+                if (bodyPart.getContentType().startsWith("text/plain")) {
+                    body += bodyPart.getContent().toString();
+                } else if (bodyPart.getContentType().startsWith("text/html")) {
+                    // Si le contenu est HTML, extrayez uniquement le texte
+                    body += extractTextFromHtml(bodyPart.getContent().toString());
                 }
             }
+        }*/
+       
+        // Extraire le corps du message
+        StringBuilder bodyBuilder = new StringBuilder();
+        StringBuilder attachmentsBuilder = new StringBuilder();
+        Object content = message.getContent();
+        if (content instanceof String) {
+            bodyBuilder.append((String) content);
+        } else if (content instanceof Multipart) {
+            Multipart multipart = (Multipart) content;
+            for (int i = 0; i < multipart.getCount(); i++) {
+                BodyPart bodyPart = multipart.getBodyPart(i);
+                if (Part.ATTACHMENT.equalsIgnoreCase(bodyPart.getDisposition())) {
+                    String fileName = bodyPart.getFileName();
+                    attachmentsBuilder.append(fileName).append(", ");
+                } else {
+                    // Ajouter le contenu textuel au corps du message
+                    bodyBuilder.append(bodyPart.getContent().toString());
+                }
+            }
+        }
+
+        // Convertir les builders en chaînes de caractères
+        String body = bodyBuilder.toString();
+        String attachments = attachmentsBuilder.toString();
+
 
             // Extraire les destinataires
             String recipients = getAddressString(message.getAllRecipients());
 
             // Extraire les pièces jointes
-            String attachments = "";
+           /*  String attachments = "";
             if (message instanceof MimeMessage) {
                 MimeMessage mimeMessage = (MimeMessage) message;
                 if (mimeMessage.getContent() instanceof Multipart) {
@@ -120,7 +162,7 @@ public class EmailService1 {
                     // Supprimer la virgule et l'espace à la fin
                     attachments = attachments.substring(0, attachments.length() - 2);
                 }
-            }
+            }*/
 
             // Créer une entité Email et la sauvegarder dans la base de données
             Email email = new Email();
@@ -129,7 +171,12 @@ public class EmailService1 {
             email.setBody(body);
             email.setDate(date);
             email.setRecipients(recipients);
+           // email.setAttachments(attachments);
+           if (!attachments.isEmpty()) {
+            // Supprimer la virgule et l'espace à la fin
+            attachments = attachments.substring(0, attachments.length() - 2);
             email.setAttachments(attachments);
+        }
             // Enregistrez maintenant l'e-mail dans votre base de données
             emailRepository.save(email);
         } catch (Exception e) {
@@ -167,5 +214,22 @@ public class EmailService1 {
     public Email searchByEmail(String email) {
         return emailRepository.findBySender(email);
     }
+    public void archiveEmail(Long emailId) {
+        Optional<Email> optionalEmail = emailRepository.findById(emailId);
+        if (optionalEmail.isPresent()) {
+            Email email = optionalEmail.get();
+         //   email.setArchived(true);
+            emailRepository.save(email);
+        } else {
+            // Gérer le cas où l'email avec cet ID n'existe pas
+            throw new IllegalArgumentException("Email not found with ID: " + emailId);
+        }
+    }
+    
+   
+   /*  public List<Email> getArchivedEmails() {
+        // Utiliser le repository pour récupérer les e-mails archivés
+        return emailRepository.findByArchivedTrue();
+    }*/
     
 }

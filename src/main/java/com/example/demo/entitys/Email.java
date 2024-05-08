@@ -14,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 
@@ -31,10 +32,11 @@ public class Email {
     
 
     private String subject;
+	@Lob
     private String body;
     private LocalDate date;
     private String attachments;
-	private boolean archived;
+	//private boolean archived;
     @OneToMany(mappedBy = "email")
     private List<Attachment> attachments1;
 
@@ -52,9 +54,9 @@ public class Email {
 	public void setDomainEntities(Set<DomainEntity> domainEntities) {
 		this.domainEntities = domainEntities;
 	}
-	public void setAttachments(List<Attachment> attachments1) {
-		this.attachments1 = attachments1;
-	}
+	//public void setAttachments(List<Attachment> attachments1) {
+		//this.attachments1 = attachments1;
+	//}
 	public List<Attachment> getAttachments1() {
         return attachments1;
     }
@@ -115,10 +117,8 @@ public class Email {
 	public void setAttachments(String attachments) {
 		this.attachments = attachments;
 	}
-	public void setArchived(boolean b) {
-		
-		
-	}
+	
+
 	/*public void setRecipients(List<String> recipients) {
 		// Implémentez la logique pour définir les destinataires de manière appropriée
 		this.recipients = recipients;

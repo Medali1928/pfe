@@ -5,6 +5,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.entitys.ArchivingRule;
@@ -21,18 +22,32 @@ public class ArchivingRuleServiceImpl implements ArchivingRuleService {
     @Autowired
     private ArchivingRuleRepository archivingRuleRepository;
 
+   
     @Override
-    public void archiverEmailsSelonRegles() {
-        List<ArchivingRule> regles = archivingRuleRepository.findAll();
-        for (ArchivingRule regle : regles) {
-            // Calcul de la date limite (1 an dans le passé par rapport à la date actuelle)
+    @Scheduled(cron = "0 0 0 * * ?")
+public void archiverEmailsSelonRegles() {
+    List<Email> regles = emailRepository.findAll();
+    for (Email regle : regles) {
+        // Vérifier si la règle est active
+   
             LocalDate dateLimite = LocalDate.now().minus(1, ChronoUnit.YEARS);
-            List<Email> emailsAarchiver = emailRepository.findByDateBeforeAndArchivedFalse(dateLimite);
+            // Récupérer tous les e-mails à archiver avant la date limite
+            List<Email> emailsAarchiver = emailRepository.findByDateBefore(dateLimite);
+            // Archiver les e-mails récupérés
             for (Email email : emailsAarchiver) {
-                // Archivage de l'email
-                email.setArchived(true);
-                emailRepository.save(email);
+                System.out.print(email);
+                // Archiver l'e-mail en utilisant les informations de la règle
+               // archivingRuleRepository.save(email.getBody(), email.getRecipients(), email.getAttachments(), email.getSubject(), email.getDate(), email.getSender());
+                // Marquer l'e-mail comme archivé
+                //email.setArchived(true);
+
+                ArchivingRule  ar = new ArchivingRule(email.getSender(), email.getRecipients(),email.getSubject(),email.getBody(), email.getDate(), email.getAttachments());
+                archivingRuleRepository.save(ar);
+                emailRepository.delete(email);
             }
         }
     }
-}
+
+   }
+    
+
