@@ -56,10 +56,7 @@ public class Attachment {
 	public void setEmail(Email email) {
 		this.email = email;
 	}
-	public void setEmail(Attachment email2) {
-		// TODO Auto-generated method stub
-		
-	}
+	
 	public byte[] getData() {
 		return data;
 	}

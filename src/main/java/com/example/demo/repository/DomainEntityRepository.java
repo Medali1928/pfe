@@ -9,4 +9,6 @@ import com.example.demo.entitys.DomainEntity;
 
 public interface DomainEntityRepository extends JpaRepository<DomainEntity,Long>{
 
+    DomainEntity findByDomainName(String senderDomain);
+
 }

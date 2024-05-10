@@ -28,5 +28,5 @@ public interface UserService {
     Optional<User> findById(Integer id);
 
     void removeOne(Integer id);
-    public List<User> searchByPropertyName(String lastname);
+    public List<User> searchByPropertyName(String username);
 }

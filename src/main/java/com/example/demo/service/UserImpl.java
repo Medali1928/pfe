@@ -71,7 +71,7 @@ public class UserImpl  implements UserService {
         return passwordResetTokenRepository.findByToken(token);
     }
     @Override
-    public List<User> searchByPropertyName(String nom) {
-        return userRepository.searchByPropertyName(nom);
+    public List<User> searchByPropertyName(String username) {
+        return userRepository.searchByPropertyName(username);
     }
 }

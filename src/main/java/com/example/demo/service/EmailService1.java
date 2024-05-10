@@ -10,6 +10,7 @@ import java.util.Properties;
 
 import javax.mail.Address;
 import javax.mail.BodyPart;
+import javax.mail.Flags;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.Multipart;
@@ -18,6 +19,9 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.mail.search.AndTerm;
+import javax.mail.search.FlagTerm;
+import javax.mail.search.ReceivedDateTerm;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +34,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
 
 
 
@@ -60,9 +65,16 @@ public class EmailService1 {
             // Ouvrir le dossier de la boîte de réception en lecture seule
             Folder inbox = store.getFolder("INBOX");
             inbox.open(Folder.READ_ONLY);
+   // Date de référence : 08/05/2024
+   LocalDate referenceDate = LocalDate.of(2024, 5, 8);
+   Date fromDate = Date.from(referenceDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-            // Récupérer les messages de la boîte de réception
-            Message[] messages = inbox.getMessages();
+   // Rechercher les messages non lus après la date de référence
+   FlagTerm unreadFlagTerm = new FlagTerm(new javax.mail.Flags(javax.mail.Flags.Flag.SEEN), false);
+   ReceivedDateTerm receivedDateTerm = new ReceivedDateTerm(javax.mail.search.ComparisonTerm.GT, fromDate);
+   AndTerm searchTerm = new AndTerm(unreadFlagTerm, receivedDateTerm);
+   Message[] messages = inbox.search(searchTerm);
+
 
             // Parcourir les messages et les enregistrer dans la base de données
             for (Message message : messages) {
@@ -80,6 +92,22 @@ public class EmailService1 {
         Document doc = Jsoup.parseBodyFragment(htmlContent);
         return doc.text();
     }
+    private String extractTextWithCss(String htmlContent) {
+        Document doc = Jsoup.parse(htmlContent);
+    
+        // Sélectionnez les éléments de texte (en excluant les balises de script et de style)
+        Elements textElements = doc.select(":not(script):not(style)");
+    
+        StringBuilder sb = new StringBuilder();
+        for (Element element : textElements) {
+            // Obtenez le texte de cet élément et ajoutez-le au StringBuilder
+            sb.append(element.text()).append(" ");
+        }
+    
+        return sb.toString().trim(); // Supprimer les espaces blancs inutiles à la fin
+    }
+    
+    
     
     private void saveMessageToDatabase(Message message) {
         try {

@@ -7,14 +7,14 @@ import javax.persistence.Entity;
 public class ScanRule extends Rule {
      
 
-    private Integer frequency;
+    private String frequency;
   
 
-    public Integer getFrequency() {
+    public String getFrequency() {
         return frequency;
     }
 
-    public void setFrequency(Integer frequency) {
+    public void setFrequency(String frequency) {
         this.frequency = frequency;
     }
 
@@ -22,7 +22,7 @@ public class ScanRule extends Rule {
         super();
     }
 
-    public ScanRule( Integer frequency) {
+    public ScanRule( String frequency) {
       
         this.frequency = frequency;
     }

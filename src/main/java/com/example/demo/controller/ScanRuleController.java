@@ -18,7 +18,7 @@ import javax.persistence.EntityNotFoundException;
 @RestController
 @RequestMapping("/scan-rules")
 public class ScanRuleController {
-	@Autowired
+	/*@Autowired
     ScanRuleService scanRuleService;
 
     @PostMapping("/{ruleId}/define-scan-period")
@@ -52,4 +52,4 @@ public class ScanRuleController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while creating the scan rule.");
         }
-}}
+}*/}
