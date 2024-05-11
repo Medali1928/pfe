@@ -24,7 +24,9 @@ public class ArchivingRuleServiceImpl implements ArchivingRuleService {
 
    
     @Override
-    @Scheduled(cron = "0 0 0 * * ?")
+    @Scheduled(cron = "@monthly")
+
+    //@Scheduled(fixedDelay = 1, timeUnit = TimeUnit.MINUTES)
 public void archiverEmailsSelonRegles() {
     List<Email> regles = emailRepository.findAll();
     for (Email regle : regles) {

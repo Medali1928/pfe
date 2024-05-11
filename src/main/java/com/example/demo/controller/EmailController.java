@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -17,17 +18,18 @@ import com.example.demo.entitys.Email;
 
 
 import com.example.demo.service.EmailService1;
+
+
 @RestController
 @RequestMapping("/api/emails")
 public class EmailController {
     @Autowired
     private EmailService1 emailService;
-
-    @GetMapping("/fetch-and-save")
-    public ResponseEntity<String> fetchAndSaveEmails() {
-        emailService.fetchAndSaveEmails();
-        return ResponseEntity.ok("Emails fetched and saved successfully.");
-    }
+    @GetMapping("/fetch-and-save/{accountId}")
+public ResponseEntity<String> fetchAndSaveEmails(@PathVariable Long accountId) {
+    emailService.fetchAndSaveEmails(accountId);
+    return ResponseEntity.ok("Emails fetched and saved successfully.");
+}
     @GetMapping("/search")
     public List<Email> searchEmails(@RequestParam(required = false) String sender,
                                     @RequestParam(required = false) String subject,

@@ -12,7 +12,8 @@ public interface ClassificationRuleService {
 	//public List<ClassificationRule> getAllClassificationRules();
 	 //public void deleteClassificationRule(Long ruleId);
 	 //public void updateClassificationRule(Long ruleId, ClassificationRule updatedRule);
-	  public Map<String, List<Email>> classifyEmailsByDomain();
+	//  public Map<String, List<Email>> classifyEmailsByDomain();
+	 //public List<Email> getEmailsByDomain(String domainName);
+	  public Map<DomainEntity, List<Email>> classifyEmailsByDomain() ;
 	  public List<Email> getEmailsByDomain(String domainName);
-
 }

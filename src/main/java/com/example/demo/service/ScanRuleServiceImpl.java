@@ -8,10 +8,12 @@ import com.example.demo.entitys.Account;
 import com.example.demo.entitys.ScanRule;
 import com.example.demo.repository.ScanRuleRepository;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.persistence.EntityNotFoundException;
 
-@Service
-public class ScanRuleServiceImpl implements ScanRuleService{
+//@Service
+//public class ScanRuleServiceImpl implements ScanRuleService{
 	/*@Autowired
      ScanRuleRepository scanRuleRepository;
 
@@ -43,39 +45,40 @@ public class ScanRuleServiceImpl implements ScanRuleService{
 	
 
 
-    @Autowired
-    private EmailService1 emailService;
+   // @Autowired
+    //private EmailService1 emailService;
 
-    @Autowired
-    private ScanRuleRepository scanRuleRepository;
+    //@Autowired
+    //private ScanRuleRepository scanRuleRepository;
+
+   
 
     // Méthode de scan des e-mails planifiée
-    @Scheduled(fixedRate = 24 * 60 * 60 * 1000) // Exécuter toutes les 24 heures
+   //@Scheduled(fixedRate = 24 * 60 * 60 * 1000) // Exécuter toutes les 24 heures
+   /*@Scheduled(fixedDelay = 1, timeUnit = TimeUnit.MINUTES)
+   public void scanEmails() {
+       // Récupérer toutes les règles de scan à partir du ScanRuleRepository
+       Iterable<ScanRule> scanRules = scanRuleRepository.findAll();
+
+       // Parcourir chaque règle et exécuter la récupération des e-mails avec la fréquence correspondante
+       for (ScanRule scanRule : scanRules) {
+           // Récupérer la fréquence de scan
+           String frequency = scanRule.getFrequency();
+
+           // Exécuter la récupération des e-mails avec la fréquence spécifiée
+           if ("daily".equalsIgnoreCase(frequency) || "hourly".equalsIgnoreCase(frequency) || "weekly".equalsIgnoreCase(frequency)) {
+               // Appeler la méthode de récupération des e-mails de EmailService1
+               emailService.fetchAndSaveEmails(scanRule.getAccountId());
+           }
+           // Ajoutez des conditions supplémentaires pour d'autres fréquences si nécessaire
+       }
+   }} */
+  
+
     
-    public void scanEmails() {
-        // Récupérer toutes les règles de scan à partir du ScanRuleRepository
-        Iterable<ScanRule> scanRules = scanRuleRepository.findAll();
+  
 
-        // Parcourir chaque règle et exécuter la récupération des e-mails avec la fréquence correspondante
-        for (ScanRule scanRule : scanRules) {
-            // Récupérer la fréquence de scan
-            String frequency = scanRule.getFrequency();
 
-            // Exécuter la récupération des e-mails avec la fréquence spécifiée
-            if ("daily".equalsIgnoreCase(frequency)) {
-                // Planifier la tâche de scan pour s'exécuter une fois par jour
-                emailService.fetchAndSaveEmails();
-            } else if ("hourly".equalsIgnoreCase(frequency)) {
-                // Planifier la tâche de scan pour s'exécuter une fois par heure
-                // (vous devez ajuster cette planification en fonction de votre configuration)
-            } else if ("weekly".equalsIgnoreCase(frequency)) {
-                // Planifier la tâche de scan pour s'exécuter une fois par semaine
-                // (vous devez ajuster cette planification en fonction de votre configuration)
-            }
-            // Ajoutez des conditions supplémentaires pour d'autres fréquences si nécessaire
-        }
-    }
-}
 
 
 

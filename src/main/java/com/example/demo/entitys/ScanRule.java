@@ -27,5 +27,7 @@ public class ScanRule extends Rule {
         this.frequency = frequency;
     }
 
+    
+
 	
 }

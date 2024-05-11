@@ -9,10 +9,9 @@ import com.example.demo.repository.AccountRepository;
 @Service
 
 public class AccountServiceImpl implements AccountService {
-	@Autowired
-	AccountRepository accountRepo;
+	
 
-	@Override
+/* 	@Override
 	public Account addCompte(Account account) {
 		
 		return accountRepo.save(account);
@@ -41,7 +40,17 @@ public class AccountServiceImpl implements AccountService {
 	     
 		 }
 		return accountRepo.save(cpt);
-	}
+	}*/
+	@Autowired
+    private AccountRepository emailAccountRepository;
+
+    public Account save(Account emailAccount) {
+        return emailAccountRepository.save(emailAccount);
+    }
+
+    public Account findById(Long id) {
+        return emailAccountRepository.findById(id).orElse(null);
+    }
 	}
 
 

@@ -19,82 +19,74 @@ import javax.persistence.EntityNotFoundException;
 
 @Service
 public class ClassificationRuleServiceImpl implements ClassificationRuleService {
-	/*@Autowired
+	@Autowired
 	ClassificationRuleRepository classificationRuleRepository;
 
-	@Override
-	public void createClassificationRule(ClassificationRule classificationRule) {
-		classificationRuleRepository.save(classificationRule);
-	}
+	
 
-	@Override
-	public List<ClassificationRule> getAllClassificationRules() {
-		
-	        return classificationRuleRepository.findAll();
-	    
-	}
-
-	@Override
-	public void deleteClassificationRule(Long ruleId) {
-		 ClassificationRule rule = classificationRuleRepository.findById(ruleId)
-		            .orElseThrow(() -> new EntityNotFoundException("Classification rule not found with id: " + ruleId));
-
-		        classificationRuleRepository.delete(rule);
-		
-	}
-
-	@Override
-	public void updateClassificationRule(Long ruleId, ClassificationRule updatedRule) {
-		ClassificationRule rule = classificationRuleRepository.findById(ruleId)
-	            .orElseThrow(() -> new EntityNotFoundException("Classification rule not found with id: " + ruleId));
-
-	       
-	        rule.setCategory(updatedRule.getCategory());
-	        rule.setAction(updatedRule.getAction());
-
-	        classificationRuleRepository.save(rule);
-		
-	}*/
-	@Autowired
+@Autowired
     private EmailRepository emailRepository;
 
     @Autowired
     private DomainEntityRepository domainEntityRepository;
-   // Modification de la méthode classifyEmailsByDomain() pour retourner une carte de type Map<String, List<Email>>
-public Map<String, List<Email>> classifyEmailsByDomain() {
-    Map<String, List<Email>> classifiedEmails = new HashMap<>();
-
-    // Récupérer tous les e-mails depuis la base de données
-    List<Email> allEmails = emailRepository.findAll();
-
-    // Parcourir tous les e-mails
-    for (Email email : allEmails) {
-        // Extraire le domaine de l'expéditeur de l'e-mail
-        String senderDomain = extractDomain(email.getSender());
-
-        // Si le domaine de l'expéditeur n'est pas nul
-        if (senderDomain != null) {
-            // Récupérer la liste d'e-mails existante pour ce domaine
-            List<Email> emailsForDomain = classifiedEmails.getOrDefault(senderDomain, new ArrayList<>());
-
-            // Ajouter l'e-mail à la liste correspondante dans la carte de classification
-            emailsForDomain.add(email);
-            classifiedEmails.put(senderDomain, emailsForDomain);
+    public Map<DomainEntity, List<Email>> classifyEmailsByDomain() {
+        Map<DomainEntity, List<Email>> classifiedEmails = new HashMap<>();
+    
+        // Récupérer tous les e-mails depuis la base de données
+        List<Email> allEmails = emailRepository.findAll();
+    
+        // Parcourir tous les e-mails
+        for (Email email : allEmails) {
+            // Extraire le domaine de l'expéditeur de l'e-mail
+            String senderDomain = extractDomain(email.getSender());
+    
+            // Si le domaine de l'expéditeur n'est pas nul
+            if (senderDomain != null) {
+                // Récupérer l'entité de domaine correspondant au domaine de l'expéditeur depuis la base de données
+                DomainEntity domainEntity = domainEntityRepository.findByDomainName(senderDomain);
+    
+                // Si l'entité de domaine correspondant n'existe pas
+                if (domainEntity == null) {
+                    // Créer une nouvelle entité DomainEntity pour le domaine
+                    domainEntity = new DomainEntity();
+                    domainEntity.setDomainName(senderDomain);
+                    domainEntity = domainEntityRepository.save(domainEntity);
+                }
+    
+                // Ajouter l'e-mail à la liste correspondante dans la carte de classification
+                List<Email> emailsForDomain = classifiedEmails.getOrDefault(domainEntity, new ArrayList<>());
+                emailsForDomain.add(email);
+                classifiedEmails.put(domainEntity, emailsForDomain);
+            }
         }
+    
+        return classifiedEmails;
     }
 
-    return classifiedEmails;
+    private String extractDomain(String email) {
+        // Extraire le domaine de l'adresse e-mail
+        String[] parts = email.split("@");
+        return parts.length == 2 ? parts[1] : null;
+    }
+   public List<Email> getEmailsByDomain(String domainName) {
+    // Récupérer tous les e-mails classifiés par domaine
+    Map<DomainEntity, List<Email>> classifiedEmails = classifyEmailsByDomain();
+    
+    // Parcourir la carte des e-mails classifiés par domaine
+    for (Map.Entry<DomainEntity, List<Email>> entry : classifiedEmails.entrySet()) {
+        DomainEntity domainEntity = entry.getKey();
+        // Vérifier si le nom de domaine correspond à celui recherché
+        if (domainEntity.getDomainName().equals(domainName)) {
+            // Retourner la liste d'e-mails associée à ce domaine
+            return entry.getValue();
+        }
+    }
+    // Retourner null si aucun e-mail n'est trouvé pour ce domaine
+    return null;
 }
 
-// Méthode pour extraire le domaine d'une adresse e-mail
-private String extractDomain(String email) {
-    // Extraire le domaine de l'adresse e-mail
-    String[] parts = email.split("@");
-    return parts.length == 2 ? parts[1] : null;
+    
+  
 }
 
-// Utilisation de la carte modifiée dans getEmailsByDomain()
-public List<Email> getEmailsByDomain(String domainName) {
-    Map<String, List<Email>> classifiedEmails = classifyEmailsByDomain();
-    return classifiedEmails.getOrDefault(domainName, null);
-}}
+

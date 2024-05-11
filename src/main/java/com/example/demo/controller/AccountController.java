@@ -1,9 +1,12 @@
 package com.example.demo.controller;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,12 +22,12 @@ import com.example.demo.service.AccountService;
 
  
 @RestController
-@RequestMapping("account")
+@RequestMapping("/api/v1/auth/")
 public class AccountController {
 	@Autowired
 	AccountService accountserv;
 
-	
+/*	
 @PostMapping("/addCompte")
 public Account addCompte(@RequestBody Account account) {
 		
@@ -45,5 +48,29 @@ public String deleteuser(@PathVariable Long account_id) {
 public Account  updateaccount(@PathVariable Long account_id,@RequestBody Account a) {
 	return accountserv.updateAccount(account_id, a);
  
-}}
+}*/
+    @PostMapping("/create")
+    public ResponseEntity<Account> createEmailAccount(@RequestBody Account emailAccount) {
+        Account savedEmailAccount =  accountserv.save(emailAccount);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedEmailAccount);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Account> getEmailAccountById(@PathVariable Long id) {
+       Account emailAccount =  accountserv.findById(id);
+        if (emailAccount != null) {
+            return ResponseEntity.ok(emailAccount);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+   /*  @GetMapping("/all")
+    public ResponseEntity<List<Account>> getAllEmailAccounts() {
+        List<Account> emailAccounts =  accountserv.getAll();
+        return ResponseEntity.ok(emailAccounts);
+    }*/
+
+
+}
 

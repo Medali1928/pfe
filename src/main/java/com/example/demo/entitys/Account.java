@@ -18,7 +18,7 @@ public class Account {
 	private Long account_id ;
 	private String password;
 	private String Email;
-	private String role;
+	
 	private String port;
 	private String serveur;
 	public User getUser() {
@@ -50,12 +50,7 @@ public class Account {
 	public void setEmail(String Email) {
 		this.Email = Email;
 	}
-	public String getRole() {
-		return role;
-	}
-	public void setRole(String role) {
-		this.role = role;
-	}
+	
 	public String getPort() {
 		return port;
 	}
@@ -68,12 +63,12 @@ public class Account {
 	public void setServeur(String serveur) {
 		this.serveur = serveur;
 	}
-	public Account(Long account_id, String password, String Email, String role, String port, String serveur) {
+	public Account(Long account_id, String password, String Email, String port, String serveur) {
 		super();
 		this.account_id = account_id;
 		this.password = password;
 		this.Email = Email;
-		this.role = role;
+		
 		this.port = port;
 		this.serveur = serveur;
 	}

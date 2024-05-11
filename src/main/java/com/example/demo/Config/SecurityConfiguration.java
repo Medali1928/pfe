@@ -34,7 +34,7 @@ public class SecurityConfiguration {
                 .disable()
                 .authorizeRequests()
                 .antMatchers(
-    "/api/**",
+        "/api/**",
          
                         "/api/v1/auth/**",
                        
@@ -50,6 +50,7 @@ public class SecurityConfiguration {
                         "/swagger-ui.html"
                 ).permitAll()
                 .antMatchers("/archiver/emails").permitAll()
+                .antMatchers("/email/accounts").permitAll()
                
 
 

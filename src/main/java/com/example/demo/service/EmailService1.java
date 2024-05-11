@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import javax.mail.Address;
 import javax.mail.BodyPart;
@@ -24,8 +25,10 @@ import javax.mail.search.FlagTerm;
 import javax.mail.search.ReceivedDateTerm;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.entitys.Account;
 import com.example.demo.entitys.Email;
 import com.example.demo.repository.EmailRepository;
 
@@ -37,30 +40,42 @@ import org.jsoup.select.Elements;
 
 
 
+import org.springframework.scheduling.annotation.EnableScheduling;
 
+@EnableScheduling
 @Service
 public class EmailService1 {
     
     @Autowired
     private EmailRepository emailRepository;
-
-    public void fetchAndSaveEmails() {
-        // Configurer les propriétés pour l'accès IMAP
+    @Autowired
+    private AccountService emailAccountService;
+   
+//@Scheduled(fixedDelay = 1, timeUnit = TimeUnit.MINUTES)
+    //@Scheduled(cron = " 1 18 19 * * *")
+    public void fetchAndSaveEmails(Long emailAccountId) {
+        // Récupérer les informations de connexion à partir de la base de données
+     
+        Account emailAccount = emailAccountService.findById(emailAccountId);
+        if (emailAccount == null) {
+            throw new IllegalArgumentException("Email account not found with ID: " + emailAccountId);
+        }
+       // Configurer les propriétés pour l'accès IMAP
         Properties properties = new Properties();
         properties.put("mail.store.protocol", "imaps");
-        properties.put("mail.imaps.host", "imap.gmail.com");
-        properties.put("mail.imaps.port", "993");
+        properties.put("mail.imaps.host", emailAccount.getServeur());
+        properties.put("mail.imaps.port", emailAccount.getPort());
+        //properties.put("mail.imaps.host", "imap.gmail.com");
+       // properties.put("mail.imaps.port", "993");
         properties.put("mail.imaps.starttls.enable", "true");
-
-        // Adresse e-mail et mot de passe
-        String email = "alouloumed21@gmail.com";
-        String password = "vssd tysc xlcg mabg";
-
+        //String email = "alouloumed21@gmail.com";
+        //String password = "vssd tysc xlcg mabg";
         try {
             // Créer une session avec les propriétés configurées
             Session session = Session.getInstance(properties);
             Store store = session.getStore("imaps");
-            store.connect(email, password);
+           store.connect(emailAccount.getEmail(), emailAccount.getPassword());
+    //store.connect(email, password);
 
             // Ouvrir le dossier de la boîte de réception en lecture seule
             Folder inbox = store.getFolder("INBOX");
@@ -242,7 +257,7 @@ public class EmailService1 {
     public Email searchByEmail(String email) {
         return emailRepository.findBySender(email);
     }
-    public void archiveEmail(Long emailId) {
+     public void archiveEmail(Long emailId) {
         Optional<Email> optionalEmail = emailRepository.findById(emailId);
         if (optionalEmail.isPresent()) {
             Email email = optionalEmail.get();

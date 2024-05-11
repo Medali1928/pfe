@@ -28,59 +28,22 @@ import javax.persistence.EntityNotFoundException;
 public class ClassificationRuleController {
 	 @Autowired
 	    ClassificationRuleService classificationRuleService;
-
-	  /*  @PostMapping("/create")
-	    public ResponseEntity<String> createClassificationRule(@RequestBody ClassificationRule classificationRule) {
-	        try {
-	            classificationRuleService.createClassificationRule(classificationRule);
-	            return ResponseEntity.ok("Classification rule created successfully.");
-	        } catch (Exception e) {
-	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while creating the classification rule.");
-	        }
-	    }
-	    @GetMapping("/all")
-	    public ResponseEntity<List<ClassificationRule>> getAllClassificationRules() {
-	        List<ClassificationRule> classificationRules = classificationRuleService.getAllClassificationRules();
-	        return ResponseEntity.ok(classificationRules);
-	    }
-	    @DeleteMapping("/{ruleId}")
-	    public ResponseEntity<String> deleteClassificationRule(@PathVariable("ruleId") Long ruleId) {
-	        try {
-	            classificationRuleService.deleteClassificationRule(ruleId);
-	            return ResponseEntity.ok("Classification rule deleted successfully.");
-	        } catch (EntityNotFoundException e) {
-	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-	        } catch (Exception e) {
-	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deleting the classification rule.");
-	        }
-	    }
-	    @PutMapping("/{ruleId}")
-	    public ResponseEntity<String> updateClassificationRule(@PathVariable("ruleId") Long ruleId, @RequestBody ClassificationRule updatedRule) {
-	        try {
-	            classificationRuleService.updateClassificationRule(ruleId, updatedRule);
-	            return ResponseEntity.ok("Classification rule updated successfully.");
-	        } catch (EntityNotFoundException e) {
-	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-	        } catch (Exception e) {
-	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the classification rule.");
-	        }
-	    }
-*/
-
     @GetMapping("/classify")
-    public ResponseEntity<Map<String, List<Email>>> classifyEmailsByDomain() {
-        Map<String, List<Email>> classifiedEmails = classificationRuleService.classifyEmailsByDomain();
+    public ResponseEntity<Map<DomainEntity, List<Email>>> classifyEmailsByDomain() {
+        Map<DomainEntity, List<Email>> classifiedEmails = classificationRuleService.classifyEmailsByDomain();
         return ResponseEntity.ok(classifiedEmails);
     }
-	@GetMapping("/classify/{domain}")
-public ResponseEntity<List<Email>> getEmailsByDomain(@PathVariable String domain) {
-    List<Email> emailsForDomain = classificationRuleService.getEmailsByDomain(domain);
-    if (emailsForDomain != null) {
-        return ResponseEntity.ok(emailsForDomain);
-    } else {
-        return ResponseEntity.notFound().build();
-    }
+	
+@GetMapping("/domain/{domainName}")
+public ResponseEntity<List<Email>> getEmailsByDomain(@PathVariable String domainName) {
+	List<Email> emails = classificationRuleService.getEmailsByDomain(domainName);
+	if (emails != null) {
+		return new ResponseEntity<>(emails, HttpStatus.OK);
+	} else {
+		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	}
 }
+
 
 }
 
