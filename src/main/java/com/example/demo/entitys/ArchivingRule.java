@@ -45,6 +45,9 @@ this.body = body;
 this.date = date;
 this.attachments = attachments;
 }
+public ArchivingRule() {
+    super();
+}
    /* private Integer retentionPeriod;
     
     private boolean active;

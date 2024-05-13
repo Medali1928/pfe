@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -8,17 +9,35 @@ import com.example.demo.entitys.Account;
 import com.example.demo.entitys.ScanRule;
 import com.example.demo.repository.ScanRuleRepository;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.persistence.EntityNotFoundException;
+@EnableScheduling
+@Service
+public class ScanRuleServiceImpl implements ScanRuleService {
 
-//@Service
-//public class ScanRuleServiceImpl implements ScanRuleService{
-	/*@Autowired
-     ScanRuleRepository scanRuleRepository;
+    @Autowired
+    ScanRuleRepository scanRuleRepository;
 
+    @Autowired
+    private EmailService1 emailService;
+    @Autowired
+    private AccountService emailAccountService;
 
-	@Override
+    //@Scheduled(fixedDelay = 1, timeUnit = TimeUnit.MINUTES)
+    @Scheduled(cron = " 1 18 19 * * *")
+    public void scanEmails() {
+        // Récupérer tous les comptes de messagerie de la base de données
+        List<Account> emailAccounts = emailAccountService.getAllEmailAccountsFromDatabase();
+        
+        // Itérer sur chaque compte et appeler la méthode de récupération d'e-mails
+        for (Account emailAccount : emailAccounts) {
+            emailService.fetchAndSaveEmails(emailAccount.getAccount_id());
+        }
+    }
+}
+	/*@Override
 	public void defineScanPeriod(Long ruleId, Integer frequency) {
 		 ScanRule scanRule = scanRuleRepository.findById(ruleId)
 		            .orElseThrow(() -> new EntityNotFoundException("Scan rule not found with id: " + ruleId));

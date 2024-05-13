@@ -1,5 +1,7 @@
 package com.example.demo.service;
 
+import java.util.List;
+
 import com.example.demo.entitys.Account;
 
 public interface AccountService {
@@ -8,6 +10,7 @@ public interface AccountService {
 	//public Account updateAccount(Long account_Id, Account account);
 	public Account save(Account emailAccount);
 	public Account findById(Long id);
+	public List<Account> getAllEmailAccountsFromDatabase();
 	
 
 

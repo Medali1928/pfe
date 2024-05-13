@@ -16,6 +16,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 @Entity
@@ -39,6 +40,14 @@ public class Email {
 	//private boolean archived;
     @OneToMany(mappedBy = "email")
     private List<Attachment> attachments1;
+	@ManyToOne
+	private Account account;
+	public Account getAccount() {
+        return account;
+    }
+    public void setAccount(Account account) {
+        this.account = account;
+    }
 
     @ManyToMany
     @JoinTable(name = "email_domain_entity",

@@ -29,6 +29,15 @@ public class Account {
 	}
 	@ManyToOne
     private User user;
+	@OneToMany(mappedBy ="account")
+	private List<Email> emails;
+	public List<Email> getEmails() {
+        return emails;
+    }
+
+    public void setEmails(List<Email> emails) {
+        this.emails = emails;
+    }
 	 
 	   @OneToMany(mappedBy = "account")
 	    private List<Rule> rules;
@@ -76,6 +85,7 @@ public class Account {
 		super();
 		// TODO Auto-generated constructor stub
 	}
+   
 	
 
 }

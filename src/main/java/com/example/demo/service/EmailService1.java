@@ -51,8 +51,8 @@ public class EmailService1 {
     @Autowired
     private AccountService emailAccountService;
    
-//@Scheduled(fixedDelay = 1, timeUnit = TimeUnit.MINUTES)
-    //@Scheduled(cron = " 1 18 19 * * *")
+
+    
     public void fetchAndSaveEmails(Long emailAccountId) {
         // Récupérer les informations de connexion à partir de la base de données
      
@@ -257,22 +257,21 @@ public class EmailService1 {
     public Email searchByEmail(String email) {
         return emailRepository.findBySender(email);
     }
-     public void archiveEmail(Long emailId) {
+    public void deleteEmail(Long emailId) {
+        // Recherche de l'e-mail dans la base de données par son ID
         Optional<Email> optionalEmail = emailRepository.findById(emailId);
         if (optionalEmail.isPresent()) {
             Email email = optionalEmail.get();
-         //   email.setArchived(true);
-            emailRepository.save(email);
+            // Supprimer l'e-mail de la base de données
+            emailRepository.delete(email);
         } else {
-            // Gérer le cas où l'email avec cet ID n'existe pas
+            // Gérer le cas où l'e-mail avec cet ID n'existe pas
             throw new IllegalArgumentException("Email not found with ID: " + emailId);
         }
     }
+
     
    
-   /*  public List<Email> getArchivedEmails() {
-        // Utiliser le repository pour récupérer les e-mails archivés
-        return emailRepository.findByArchivedTrue();
-    }*/
+  
     
 }

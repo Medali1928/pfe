@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -21,7 +22,7 @@ import com.example.demo.service.EmailService1;
 
 
 @RestController
-@RequestMapping("/api/emails")
+@RequestMapping("/api/v1/auth/emails")
 public class EmailController {
     @Autowired
     private EmailService1 emailService;
@@ -41,20 +42,19 @@ public ResponseEntity<String> fetchAndSaveEmails(@PathVariable Long accountId) {
 public Email searchByEmail(@RequestParam String email) {
     return emailService.searchByEmail(email);
 }
- @PutMapping("/{id}/archive")
-    public ResponseEntity<String> archiveEmail(@PathVariable Long id) {
+   @DeleteMapping("/{emailId}")
+    public ResponseEntity<String> deleteEmail(@PathVariable Long emailId) {
         try {
-            emailService.archiveEmail(id);
-            return ResponseEntity.ok("Email archived successfully");
+            emailService.deleteEmail(emailId);
+            return new ResponseEntity<>("Email deleted successfully", HttpStatus.OK);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email not found with ID: " + id);
+            // Gérer le cas où l'e-mail avec l'ID spécifié n'existe pas
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to archive email");
+            // Gérer les autres exceptions
+            return new ResponseEntity<>("Failed to delete email", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    /*@GetMapping("/emails/archived")
-    public List<Email> getArchivedEmails() {
-        return emailService.getArchivedEmails();
-    }*/
+   
 
 }

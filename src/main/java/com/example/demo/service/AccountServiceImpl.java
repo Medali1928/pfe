@@ -1,5 +1,7 @@
 package com.example.demo.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -51,6 +53,10 @@ public class AccountServiceImpl implements AccountService {
     public Account findById(Long id) {
         return emailAccountRepository.findById(id).orElse(null);
     }
+	public List<Account> getAllEmailAccountsFromDatabase() {
+        return emailAccountRepository.findAll(); // Utilisez la méthode appropriée de votre repository pour récupérer tous les comptes
+    }
+
 	}
 
 
