@@ -37,9 +37,10 @@ public class Email {
     private String body;
     private LocalDate date;
     private String attachments;
-	//private boolean archived;
+	
     @OneToMany(mappedBy = "email")
     private List<Attachment> attachments1;
+	
 	@ManyToOne
 	private Account account;
 	public Account getAccount() {
@@ -73,6 +74,7 @@ public class Email {
 		super();
 		
 	}
+
 	public Email(Long id, String sender, String recipients, String subject, String body, LocalDate date,
 			String attachments) {
 		super();
@@ -84,6 +86,7 @@ public class Email {
 		this.date = date;
 		this.attachments = attachments;
 	}
+
 	public Long getId() {
 		return id;
 	}

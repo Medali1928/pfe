@@ -33,7 +33,7 @@ public class ScanRuleServiceImpl implements ScanRuleService {
         
         // Itérer sur chaque compte et appeler la méthode de récupération d'e-mails
         for (Account emailAccount : emailAccounts) {
-            emailService.fetchAndSaveEmails(emailAccount.getAccount_id());
+            emailService.fetchAndSaveEmails(emailAccount.getId());
         }
     }
 }

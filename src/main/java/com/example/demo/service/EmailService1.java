@@ -93,7 +93,7 @@ public class EmailService1 {
 
             // Parcourir les messages et les enregistrer dans la base de données
             for (Message message : messages) {
-                saveMessageToDatabase(message);
+                saveMessageToDatabase(message, emailAccount);
             }
 
             // Fermer le dossier de la boîte de réception et le magasin
@@ -124,11 +124,11 @@ public class EmailService1 {
     
     
     
-    private void saveMessageToDatabase(Message message) {
+    private void saveMessageToDatabase(Message message, Account account) {
         try {
             // Extraire les informations de l'e-mail
             String subject = message.getSubject();
-            String sender = InternetAddress.toString(message.getFrom());
+            String sender = ((InternetAddress) message.getFrom()[0]).getAddress();
 
             // Extraire la date du message
             LocalDate date = null;
@@ -138,8 +138,8 @@ public class EmailService1 {
             }
 
             // Vérifier si un e-mail avec le même sujet et la même date existe déjà dans la base de données
-            Email existingEmail = emailRepository.findBySubjectAndDate(subject, date);
-            if (existingEmail != null) {
+            List<Email> existingEmail = emailRepository.findBySubjectAndDate(subject, date);
+            if (existingEmail != null && !existingEmail.isEmpty()) {
                 // Si un e-mail existe déjà avec le même sujet et la même date, ne rien faire
                 return;
             }
@@ -209,6 +209,7 @@ public class EmailService1 {
 
             // Créer une entité Email et la sauvegarder dans la base de données
             Email email = new Email();
+            email.setAccount(account);
             email.setSubject(subject);
             email.setSender(sender);
             email.setBody(body);
@@ -236,14 +237,18 @@ public class EmailService1 {
         for (Address address : addresses) {
             if (address instanceof InternetAddress) {
                 InternetAddress internetAddress = (InternetAddress) address;
-                stringBuilder.append(internetAddress.toString()).append(", ");
+                stringBuilder.append(internetAddress.getAddress()).append(", ");
             }
         }
         String result = stringBuilder.toString();
         // Supprimer la virgule et l'espace à la fin
         return result.substring(0, result.length() - 2);
     }
-    public List<Email> searchEmails(String sender, String subject, LocalDate startDate, LocalDate endDate) {
+    public List<Email> searchEmails(Long accountId, String sender, String subject, LocalDate startDate, LocalDate endDate) {
+        Account account = emailAccountService.findById(accountId);
+        if (account == null) {
+            throw new IllegalArgumentException("Email account not found with ID: " + accountId);
+        }
         // Vérifiez si les paramètres sont nuls et ajustez-les si nécessaire
         if (sender == null) sender = "";
         if (subject == null) subject = "";
@@ -251,13 +256,17 @@ public class EmailService1 {
         if (endDate == null) endDate = LocalDate.MAX;
     
         // Appelez la méthode de recherche dans le repository avec les paramètres ajustés
-        return emailRepository.findBySenderContainingIgnoreCaseAndSubjectContainingIgnoreCaseAndDateBetween(
-                sender, subject, startDate, endDate);
+        return emailRepository.findBySenderContainingIgnoreCaseAndSubjectContainingIgnoreCaseAndDateBetweenAndAccount(
+                sender, subject, startDate, endDate,account);
     }
-    public Email searchByEmail(String email) {
-        return emailRepository.findBySender(email);
+    public List<Email> searchByEmail(String email, Long accountId) {
+        Account account = emailAccountService.findById(accountId);
+        if (account == null) {
+            throw new IllegalArgumentException("Email account not found with ID: " + accountId);
+        }
+        return emailRepository.findBySenderAndAccountId(email,accountId);
     }
-    public void deleteEmail(Long emailId) {
+    public void deleteEmail(Long emailId, Long accountId) {
         // Recherche de l'e-mail dans la base de données par son ID
         Optional<Email> optionalEmail = emailRepository.findById(emailId);
         if (optionalEmail.isPresent()) {
@@ -268,6 +277,10 @@ public class EmailService1 {
             // Gérer le cas où l'e-mail avec cet ID n'existe pas
             throw new IllegalArgumentException("Email not found with ID: " + emailId);
         }
+        
+    }
+    public List<Email> getEmailsByAccountId(Long accountId) {
+        return emailRepository.findByAccountId(accountId);
     }
 
     

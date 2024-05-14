@@ -15,7 +15,7 @@ import javax.persistence.OneToMany;
 public class Account {
 	@Id 
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private Long account_id ;
+	private Long id ;
 	private String password;
 	private String Email;
 	
@@ -27,25 +27,16 @@ public class Account {
 	public void setUser(User user) {
 		this.user = user;
 	}
-	@ManyToOne
+	@ManyToOne//optional = false
     private User user;
-	@OneToMany(mappedBy ="account")
-	private List<Email> emails;
-	public List<Email> getEmails() {
-        return emails;
-    }
 
-    public void setEmails(List<Email> emails) {
-        this.emails = emails;
-    }
-	 
-	   @OneToMany(mappedBy = "account")
-	    private List<Rule> rules;
-	public Long getAccount_id() {
-		return account_id;
+	@OneToMany(mappedBy = "account")
+	private List<Rule> rules;
+	public Long getId() {
+		return id;
 	}
-	public void setAccount_id(Long account_id) {
-		this.account_id = account_id;
+	public void setId(Long id) {
+		this.id = id;
 	}
 	public String getPassword() {
 		return password;
@@ -72,9 +63,9 @@ public class Account {
 	public void setServeur(String serveur) {
 		this.serveur = serveur;
 	}
-	public Account(Long account_id, String password, String Email, String port, String serveur) {
+	public Account(Long id, String password, String Email, String port, String serveur) {
 		super();
-		this.account_id = account_id;
+		this.id = id;
 		this.password = password;
 		this.Email = Email;
 		

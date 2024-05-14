@@ -31,21 +31,22 @@ public ResponseEntity<String> fetchAndSaveEmails(@PathVariable Long accountId) {
     emailService.fetchAndSaveEmails(accountId);
     return ResponseEntity.ok("Emails fetched and saved successfully.");
 }
-    @GetMapping("/search")
+    @GetMapping("/search/{accountId}")
     public List<Email> searchEmails(@RequestParam(required = false) String sender,
                                     @RequestParam(required = false) String subject,
                                     @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-                                    @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        return emailService.searchEmails(sender, subject, startDate, endDate);
+                                    @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+                                    @PathVariable Long accountId) {
+        return emailService.searchEmails(accountId, sender, subject, startDate, endDate);
     }
-    @GetMapping("/search-by-email")
-public Email searchByEmail(@RequestParam String email) {
-    return emailService.searchByEmail(email);
+    @GetMapping("/search-by-email/{accountId}")
+public List<Email> searchByEmail(@RequestParam String email, @PathVariable Long accountId) {
+    return emailService.searchByEmail(email,accountId);
 }
-   @DeleteMapping("/{emailId}")
-    public ResponseEntity<String> deleteEmail(@PathVariable Long emailId) {
+   @DeleteMapping("/{emailId}/{accountId}")
+    public ResponseEntity<String> deleteEmail(@PathVariable Long emailId,@PathVariable Long accountId) {
         try {
-            emailService.deleteEmail(emailId);
+            emailService.deleteEmail(emailId,accountId);
             return new ResponseEntity<>("Email deleted successfully", HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             // Gérer le cas où l'e-mail avec l'ID spécifié n'existe pas
@@ -54,6 +55,11 @@ public Email searchByEmail(@RequestParam String email) {
             // Gérer les autres exceptions
             return new ResponseEntity<>("Failed to delete email", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+    
+    @GetMapping("/all/{accountId}")
+    public List<Email> getAllEmailsByAccountId(@PathVariable Long accountId) {
+        return emailService.getEmailsByAccountId(accountId);
     }
    
 
