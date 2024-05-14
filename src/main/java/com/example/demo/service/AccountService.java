@@ -5,12 +5,12 @@ import java.util.List;
 import com.example.demo.entitys.Account;
 
 public interface AccountService {
-	//public Account addCompte( Account account);
-	//public String DeleteCompte(Long account_id);
-	//public Account updateAccount(Long account_Id, Account account);
+	
 	public Account save(Account emailAccount);
 	public Account findById(Long id);
 	public List<Account> getAllEmailAccountsFromDatabase();
+	public Account updateAccount(Long accountId, Account updatedAccount);
+	public void delete(Account account);
 	
 
 

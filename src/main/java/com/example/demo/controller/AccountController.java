@@ -27,28 +27,7 @@ public class AccountController {
 	@Autowired
 	AccountService accountserv;
 
-/*	
-@PostMapping("/addCompte")
-public Account addCompte(@RequestBody Account account) {
-		
-		return accountserv.addCompte(account);
-	}
 
-
-	
-
-		
-	@DeleteMapping("deletecompte/{account_id}")
-public String deleteuser(@PathVariable Long account_id) {
-	return accountserv.DeleteCompte(account_id);
-}
-
-
-@PutMapping("updateaccount/{account_id}")
-public Account  updateaccount(@PathVariable Long account_id,@RequestBody Account a) {
-	return accountserv.updateAccount(account_id, a);
- 
-}*/
     @PostMapping("/create")
     public ResponseEntity<Account> createEmailAccount(@RequestBody Account emailAccount) {
         Account savedEmailAccount =  accountserv.save(emailAccount);
@@ -65,11 +44,37 @@ public Account  updateaccount(@PathVariable Long account_id,@RequestBody Account
         }
     }
 
-   /*  @GetMapping("/all")
-    public ResponseEntity<List<Account>> getAllEmailAccounts() {
-        List<Account> emailAccounts =  accountserv.getAll();
-        return ResponseEntity.ok(emailAccounts);
-    }*/
+    @GetMapping("/all")
+public ResponseEntity<List<Account>> getAllEmailAccounts() {
+    List<Account> emailAccounts =  accountserv.getAllEmailAccountsFromDatabase();
+    return ResponseEntity.ok(emailAccounts);
+}
+@PutMapping("/update/{id}")
+    public ResponseEntity<Account> updateAccount(@PathVariable Long id, @RequestBody Account updatedAccount) {
+        Account existingAccount = accountserv.findById(id);
+        if (existingAccount != null) {
+            // Mettre à jour les champs du compte existant avec les nouvelles valeurs
+            existingAccount.setPassword(updatedAccount.getPassword());
+            existingAccount.setEmail(updatedAccount.getEmail());
+            existingAccount.setPort(updatedAccount.getPort());
+            existingAccount.setServeur(updatedAccount.getServeur());
+            // Sauvegarder le compte mis à jour
+            Account updatedAccountResult = accountserv.save(existingAccount);
+            return ResponseEntity.ok(updatedAccountResult);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteAccount(@PathVariable Long id) {
+        Account existingAccount = accountserv.findById(id);
+        if (existingAccount != null) {
+            accountserv.delete(existingAccount);
+            return ResponseEntity.ok("Account with ID " + id + " deleted successfully.");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
 
 }

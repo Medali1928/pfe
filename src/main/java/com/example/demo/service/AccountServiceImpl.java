@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,6 +56,24 @@ public class AccountServiceImpl implements AccountService {
     }
 	public List<Account> getAllEmailAccountsFromDatabase() {
         return emailAccountRepository.findAll(); // Utilisez la méthode appropriée de votre repository pour récupérer tous les comptes
+    }
+	
+    public Account updateAccount(Long accountId, Account updatedAccount) {
+        Optional<Account> optionalAccount = emailAccountRepository.findById(accountId);
+        if (optionalAccount.isPresent()) {
+            Account existingAccount = optionalAccount.get();
+            existingAccount.setPassword(updatedAccount.getPassword());
+            existingAccount.setEmail(updatedAccount.getEmail());
+            existingAccount.setPort(updatedAccount.getPort());
+            existingAccount.setServeur(updatedAccount.getServeur());
+            // Sauvegarder le compte mis à jour dans la base de données
+            return emailAccountRepository.save(existingAccount);
+        } else {
+            throw new RuntimeException("Account not found with id: " + accountId);
+        }
+    }
+	public void delete(Account account) {
+		emailAccountRepository.delete(account);
     }
 
 	}
