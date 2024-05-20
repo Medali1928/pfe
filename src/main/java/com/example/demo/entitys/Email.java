@@ -129,7 +129,7 @@ public class Email {
 	public void setAttachments(String attachments) {
 		this.attachments = attachments;
 	}
-	
+   
 
 	/*public void setRecipients(List<String> recipients) {
 		// Implémentez la logique pour définir les destinataires de manière appropriée

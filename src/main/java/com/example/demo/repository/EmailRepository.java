@@ -25,7 +25,8 @@ public interface EmailRepository extends JpaRepository<Email,Long>{
 	//@Query("UPDATE Email e SET e.archived = true WHERE e.date < ?1")
     //void archiveEmailsBeforeDate(LocalDate date);
 	//List<Email> findByArchivedTrue();
-	List<Email> findByDateBefore(LocalDate dateLimite);
+	List<Email> findByDateBeforeAndAccountId(LocalDate date, Long accountId);
+
 	List<Email> findByAccountId(Long accountId);
 }
 

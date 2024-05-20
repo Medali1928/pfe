@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.entitys.ClassificationRule;
+
 import com.example.demo.entitys.DomainEntity;
 import com.example.demo.entitys.Email;
 import com.example.demo.service.ClassificationRuleService;

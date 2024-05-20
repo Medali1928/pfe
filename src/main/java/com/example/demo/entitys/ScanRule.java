@@ -1,13 +1,22 @@
 package com.example.demo.entitys;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
 
 @Entity
 
-public class ScanRule extends Rule {
-     
+public class ScanRule  {
 
+     
+    @Id 
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	private Long id ;
     private String frequency;
+    @OneToOne
+    private Account account;
   
 
     public String getFrequency() {

@@ -1,6 +1,6 @@
 package com.example.demo.entitys;
 
-import java.util.List;
+
 
 
 import javax.persistence.Entity;
@@ -9,7 +9,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+
 
 @Entity
 public class Account {
@@ -21,6 +22,7 @@ public class Account {
 	
 	private String port;
 	private String serveur;
+	
 	public User getUser() {
 		return user;
 	}
@@ -29,9 +31,12 @@ public class Account {
 	}
 	@ManyToOne//optional = false
     private User user;
+	/*@OneToOne
+	private ArchivingRule archivingRule;
+	@OneToOne
+	private ScanRule scanRule;*/
 
-	@OneToMany(mappedBy = "account")
-	private List<Rule> rules;
+	
 	public Long getId() {
 		return id;
 	}

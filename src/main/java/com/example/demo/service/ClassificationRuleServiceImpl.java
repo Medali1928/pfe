@@ -8,20 +8,18 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.entitys.ClassificationRule;
+
 import com.example.demo.entitys.DomainEntity;
 import com.example.demo.entitys.Email;
-import com.example.demo.repository.ClassificationRuleRepository;
+
 import com.example.demo.repository.DomainEntityRepository;
 import com.example.demo.repository.EmailRepository;
 
-import javax.persistence.EntityNotFoundException;
+
 
 @Service
 public class ClassificationRuleServiceImpl implements ClassificationRuleService {
-	@Autowired
-	ClassificationRuleRepository classificationRuleRepository;
-
+	
 	
 
 @Autowired
