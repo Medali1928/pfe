@@ -4,8 +4,12 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
 
+
+import lombok.Getter;
+import lombok.Setter;
+@Getter
+@Setter
 @Entity
 
 public class ScanRule  {
@@ -14,29 +18,20 @@ public class ScanRule  {
     @Id 
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id ;
-    private String frequency;
-    @OneToOne
-    private Account account;
+    
+    private Integer hour;
+    private Integer minute;
+
   
-
-    public String getFrequency() {
-        return frequency;
-    }
-
-    public void setFrequency(String frequency) {
-        this.frequency = frequency;
-    }
 
     public ScanRule() {
         super();
     }
 
-    public ScanRule( String frequency) {
-      
-        this.frequency = frequency;
+    public ScanRule(Integer hour, Integer minute) {
+        this.hour = hour;
+        this.minute = minute;
+       
     }
-
-    
-
 	
 }
