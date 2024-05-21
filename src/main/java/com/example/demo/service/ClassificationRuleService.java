@@ -14,6 +14,6 @@ public interface ClassificationRuleService {
 	 //public void updateClassificationRule(Long ruleId, ClassificationRule updatedRule);
 	//  public Map<String, List<Email>> classifyEmailsByDomain();
 	 //public List<Email> getEmailsByDomain(String domainName);
-	  public Map<DomainEntity, List<Email>> classifyEmailsByDomain() ;
-	  public List<Email> getEmailsByDomain(String domainName);
+	 public Map<DomainEntity, List<Email>> classifyEmailsByDomain(Long accountId) ;
+	 public List<Email> getEmailsByDomain(String domainName, Long accountId);
 }

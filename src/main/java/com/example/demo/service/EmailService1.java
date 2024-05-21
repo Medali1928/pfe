@@ -29,7 +29,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.entitys.Account;
+import com.example.demo.entitys.ArchivedEmail;
 import com.example.demo.entitys.Email;
+import com.example.demo.repository.ArchivedEmailRepository;
 import com.example.demo.repository.EmailRepository;
 
 import org.apache.commons.io.IOUtils;
@@ -50,6 +52,8 @@ public class EmailService1 {
     private EmailRepository emailRepository;
     @Autowired
     private AccountService emailAccountService;
+    @Autowired
+    private ArchivedEmailRepository archivedEmailRepository;
    
 
     
@@ -281,6 +285,29 @@ public class EmailService1 {
     }
     public List<Email> getEmailsByAccountId(Long accountId) {
         return emailRepository.findByAccountId(accountId);
+    }
+    
+    public void archiveEmail(Long emailId, Long accountId) {
+        // Rechercher l'email dans la base de données
+        Email email = emailRepository.findByIdAndAccountId(emailId, accountId);
+        if (email != null) {
+            // Créer une instance d'ArchivedEmail à partir de l'email à archiver
+            ArchivedEmail archivedEmail = new ArchivedEmail(
+                email.getSender(),
+                email.getRecipients(),
+                email.getSubject(),
+                email.getBody(),
+                email.getDate(),
+                email.getAttachments(),
+                email.getAccount()
+            );
+            // Enregistrer l'ArchivedEmail dans la table correspondante
+            archivedEmailRepository.save(archivedEmail);
+            // Supprimer l'email de la table Email
+            emailRepository.delete(email);
+        } else {
+            throw new IllegalArgumentException("Email not found for id: " + emailId);
+        }
     }
 
     

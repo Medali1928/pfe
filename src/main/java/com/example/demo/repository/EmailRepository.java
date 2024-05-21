@@ -28,6 +28,7 @@ public interface EmailRepository extends JpaRepository<Email,Long>{
 	List<Email> findByDateBeforeAndAccountId(LocalDate date, Long accountId);
 
 	List<Email> findByAccountId(Long accountId);
+    Email findByIdAndAccountId(Long emailId, Long accountId);
 }
 
    

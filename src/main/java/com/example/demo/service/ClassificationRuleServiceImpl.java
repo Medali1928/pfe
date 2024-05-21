@@ -8,83 +8,74 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
 import com.example.demo.entitys.DomainEntity;
 import com.example.demo.entitys.Email;
-
 import com.example.demo.repository.DomainEntityRepository;
 import com.example.demo.repository.EmailRepository;
 
-
-
 @Service
 public class ClassificationRuleServiceImpl implements ClassificationRuleService {
-	
-	
 
-@Autowired
+    @Autowired
     private EmailRepository emailRepository;
 
     @Autowired
     private DomainEntityRepository domainEntityRepository;
-    public Map<DomainEntity, List<Email>> classifyEmailsByDomain() {
+
+    public Map<DomainEntity, List<Email>> classifyEmailsByDomain(Long accountId) {
         Map<DomainEntity, List<Email>> classifiedEmails = new HashMap<>();
-    
-        // Récupérer tous les e-mails depuis la base de données
-        List<Email> allEmails = emailRepository.findAll();
-    
-        // Parcourir tous les e-mails
-        for (Email email : allEmails) {
-            // Extraire le domaine de l'expéditeur de l'e-mail
+
+        // Retrieve emails for the given account ID from the database
+        List<Email> accountEmails = emailRepository.findByAccountId(accountId);
+
+        // Iterate over the emails for the account
+        for (Email email : accountEmails) {
+            // Extract the domain of the sender's email
             String senderDomain = extractDomain(email.getSender());
-    
-            // Si le domaine de l'expéditeur n'est pas nul
+
+            // If the sender's domain is not null
             if (senderDomain != null) {
-                // Récupérer l'entité de domaine correspondant au domaine de l'expéditeur depuis la base de données
+                // Retrieve the domain entity corresponding to the sender's domain from the database
                 DomainEntity domainEntity = domainEntityRepository.findByDomainName(senderDomain);
-    
-                // Si l'entité de domaine correspondant n'existe pas
+
+                // If the corresponding domain entity does not exist
                 if (domainEntity == null) {
-                    // Créer une nouvelle entité DomainEntity pour le domaine
+                    // Create a new DomainEntity for the domain
                     domainEntity = new DomainEntity();
                     domainEntity.setDomainName(senderDomain);
                     domainEntity = domainEntityRepository.save(domainEntity);
                 }
-    
-                // Ajouter l'e-mail à la liste correspondante dans la carte de classification
+
+                // Add the email to the corresponding list in the classification map
                 List<Email> emailsForDomain = classifiedEmails.getOrDefault(domainEntity, new ArrayList<>());
                 emailsForDomain.add(email);
                 classifiedEmails.put(domainEntity, emailsForDomain);
             }
         }
-    
+
         return classifiedEmails;
     }
 
     private String extractDomain(String email) {
-        // Extraire le domaine de l'adresse e-mail
+        // Extract the domain from the email address
         String[] parts = email.split("@");
         return parts.length == 2 ? parts[1] : null;
     }
-   public List<Email> getEmailsByDomain(String domainName) {
-    // Récupérer tous les e-mails classifiés par domaine
-    Map<DomainEntity, List<Email>> classifiedEmails = classifyEmailsByDomain();
-    
-    // Parcourir la carte des e-mails classifiés par domaine
-    for (Map.Entry<DomainEntity, List<Email>> entry : classifiedEmails.entrySet()) {
-        DomainEntity domainEntity = entry.getKey();
-        // Vérifier si le nom de domaine correspond à celui recherché
-        if (domainEntity.getDomainName().equals(domainName)) {
-            // Retourner la liste d'e-mails associée à ce domaine
-            return entry.getValue();
+
+    public List<Email> getEmailsByDomain(String domainName, Long accountId) {
+        // Retrieve emails classified by domain for the given account ID
+        Map<DomainEntity, List<Email>> classifiedEmails = classifyEmailsByDomain(accountId);
+
+        // Iterate over the map of emails classified by domain
+        for (Map.Entry<DomainEntity, List<Email>> entry : classifiedEmails.entrySet()) {
+            DomainEntity domainEntity = entry.getKey();
+            // Check if the domain name matches the one being searched for
+            if (domainEntity.getDomainName().equals(domainName)) {
+                // Return the list of emails associated with this domain
+                return entry.getValue();
+            }
         }
+        // Return null if no emails are found for this domain
+        return null;
     }
-    // Retourner null si aucun e-mail n'est trouvé pour ce domaine
-    return null;
 }
-
-    
-  
-}
-
-

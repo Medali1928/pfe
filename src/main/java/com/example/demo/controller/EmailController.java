@@ -61,6 +61,18 @@ public List<Email> searchByEmail(@RequestParam String email, @PathVariable Long 
     public List<Email> getAllEmailsByAccountId(@PathVariable Long accountId) {
         return emailService.getEmailsByAccountId(accountId);
     }
+    
+    @PutMapping("/archive/{emailId}/{accountId}")
+    public ResponseEntity<String> archiveEmail(@PathVariable Long emailId, @PathVariable Long accountId) {
+        try {
+            emailService.archiveEmail(emailId, accountId);
+            return new ResponseEntity<>("Email archived successfully", HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Failed to archive email", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
    
 
 }
