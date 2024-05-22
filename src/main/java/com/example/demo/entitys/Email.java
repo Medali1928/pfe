@@ -5,9 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.mail.Address;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -36,10 +34,9 @@ public class Email {
 	@Lob
     private String body;
     private LocalDate date;
-    private String attachments;
 	
-    @OneToMany(mappedBy = "email")
-    private List<Attachment> attachments1;
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Attachment> attachments;
 	
 	@ManyToOne
 	private Account account;
@@ -64,11 +61,12 @@ public class Email {
 	public void setDomainEntities(Set<DomainEntity> domainEntities) {
 		this.domainEntities = domainEntities;
 	}
-	//public void setAttachments(List<Attachment> attachments1) {
-		//this.attachments1 = attachments1;
-	//}
-	public List<Attachment> getAttachments1() {
-        return attachments1;
+
+	public void setAttachments(List<Attachment> attachments) {
+		this.attachments = attachments;
+	}
+	public List<Attachment> getAttachments() {
+        return attachments;
     }
     public Email() {
 		super();
@@ -76,7 +74,7 @@ public class Email {
 	}
 
 	public Email(Long id, String sender, String recipients, String subject, String body, LocalDate date,
-			String attachments) {
+			List<Attachment> attachments) {
 		super();
 		this.id = id;
 		this.sender = sender;
@@ -123,13 +121,6 @@ public class Email {
 	public void setDate(LocalDate date2) {
 		this.date = date2;
 	}
-	public String getAttachments() {
-		return attachments;
-	}
-	public void setAttachments(String attachments) {
-		this.attachments = attachments;
-	}
-   
 
 	/*public void setRecipients(List<String> recipients) {
 		// Implémentez la logique pour définir les destinataires de manière appropriée

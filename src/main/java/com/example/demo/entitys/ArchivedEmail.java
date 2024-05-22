@@ -1,13 +1,16 @@
 package com.example.demo.entitys;
 
 import java.time.LocalDate;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -33,7 +36,8 @@ public class ArchivedEmail {
     @Lob
     private String body;
     private LocalDate date;
-    private String attachments;
+     @OneToMany(cascade = CascadeType.ALL)
+    private List<Attachment> attachments;
     @ManyToOne
 	private Account account;
 	public Account getAccount() {
@@ -42,8 +46,14 @@ public class ArchivedEmail {
     public void setAccount(Account account) {
         this.account = account;
     }
+    public void setAttachments(List<Attachment> attachments) {
+		this.attachments = attachments;
+	}
+	public List<Attachment> getAttachments() {
+        return attachments;
+    }
    
-    public ArchivedEmail(String sender, String recipients, String subject, String body, LocalDate date, String attachments,Account account) {
+    public ArchivedEmail(String sender, String recipients, String subject, String body, LocalDate date, List<Attachment> attachments ,Account account) {
         this.sender = sender;
         this.recipients = recipients;
         this.subject = subject;

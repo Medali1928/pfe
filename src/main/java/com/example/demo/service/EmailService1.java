@@ -1,12 +1,17 @@
 package com.example.demo.service;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import javax.mail.Address;
@@ -14,11 +19,13 @@ import javax.mail.BodyPart;
 import javax.mail.Flags;
 import javax.mail.Folder;
 import javax.mail.Message;
+import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.search.AndTerm;
 import javax.mail.search.FlagTerm;
@@ -30,6 +37,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.entitys.Account;
 import com.example.demo.entitys.ArchivedEmail;
+import com.example.demo.entitys.Attachment;
 import com.example.demo.entitys.Email;
 import com.example.demo.repository.ArchivedEmailRepository;
 import com.example.demo.repository.EmailRepository;
@@ -168,7 +176,7 @@ public class EmailService1 {
        
         // Extraire le corps du message
         StringBuilder bodyBuilder = new StringBuilder();
-        StringBuilder attachmentsBuilder = new StringBuilder();
+        List<Attachment> attachments = new ArrayList<>();
         Object content = message.getContent();
         if (content instanceof String) {
             bodyBuilder.append((String) content);
@@ -177,19 +185,21 @@ public class EmailService1 {
             for (int i = 0; i < multipart.getCount(); i++) {
                 BodyPart bodyPart = multipart.getBodyPart(i);
                 if (Part.ATTACHMENT.equalsIgnoreCase(bodyPart.getDisposition())) {
-                    String fileName = bodyPart.getFileName();
-                    attachmentsBuilder.append(fileName).append(", ");
-                } else {
-                    // Ajouter le contenu textuel au corps du message
-                    bodyBuilder.append(bodyPart.getContent().toString());
+                   try {
+                    String folderPath = subject + date.toString();
+                    String path = saveAttachment(bodyPart, folderPath);
+                    attachments.add(new Attachment(path));
+                   }catch(IOException e) {
+
+                   }catch(MessagingException ef){
+
+                   }
                 }
             }
         }
 
         // Convertir les builders en chaînes de caractères
         String body = bodyBuilder.toString();
-        String attachments = attachmentsBuilder.toString();
-
 
             // Extraire les destinataires
             String recipients = getAddressString(message.getAllRecipients());
@@ -219,17 +229,27 @@ public class EmailService1 {
             email.setBody(body);
             email.setDate(date);
             email.setRecipients(recipients);
-           // email.setAttachments(attachments);
-           if (!attachments.isEmpty()) {
-            // Supprimer la virgule et l'espace à la fin
-            attachments = attachments.substring(0, attachments.length() - 2);
             email.setAttachments(attachments);
-        }
+
             // Enregistrez maintenant l'e-mail dans votre base de données
             emailRepository.save(email);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private String saveAttachment(BodyPart bodyPart, String folderPath) throws IOException, MessagingException {
+        String destDir = "attachments/"+folderPath+"/";
+        File dir = new File(destDir);
+        if (!dir.exists()) dir.mkdirs();
+
+        String fileName = bodyPart.getFileName();
+        File file = new File(destDir + File.separator + fileName);
+        try (FileOutputStream output = new FileOutputStream(file)) {
+            ((MimeBodyPart) bodyPart).saveFile(file);
+        }
+        System.out.println("Saved attachment: " + file.getAbsolutePath());
+        return file.getAbsolutePath();
     }
     
     // Méthode utilitaire pour convertir Address[] en String
