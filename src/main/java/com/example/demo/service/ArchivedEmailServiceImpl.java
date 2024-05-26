@@ -1,20 +1,23 @@
 package com.example.demo.service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.entitys.ArchivedEmail;
-
+import com.example.demo.entitys.ArchivingRule;
 import com.example.demo.entitys.Email;
 import com.example.demo.repository.ArchivedEmailRepository;
-
+import com.example.demo.repository.ArchivingRuleRepository;
 import com.example.demo.repository.EmailRepository;
+@EnableScheduling
 @Service
 public class ArchivedEmailServiceImpl implements ArchivedEmailService {
     
@@ -24,9 +27,39 @@ public class ArchivedEmailServiceImpl implements ArchivedEmailService {
     @Autowired
     private ArchivedEmailRepository archivedEmailRepository;
 
+    @Autowired
+    private ArchivingRuleRepository archivingRuleRepository;
+
     @Override
-    @Scheduled(cron = "@monthly")
+    @Scheduled(cron = "@daily")
     public void archiverEmailsSelonRegles() {
+        List<ArchivingRule> rules = archivingRuleRepository.findAll();
+            for (ArchivingRule rule : rules) {
+                switch (rule.getRetentionPeriod()) {
+                    case DAILY:
+                            archiverEmails();
+                        break;
+                        case WEEKLY:
+                            DayOfWeek dayOfWeek = LocalDate.now().getDayOfWeek();
+                            if(dayOfWeek == DayOfWeek.MONDAY){
+                                archiverEmails();
+                            }
+                        break;
+                        case MONTHLY:
+                            Integer dayOfMonth = LocalDate.now().getDayOfMonth();
+                            if(dayOfMonth == 1){
+                                archiverEmails();
+                            }
+                        break;
+                
+                    default:
+                        break;
+                }    
+            }
+       
+    }
+
+    private void archiverEmails() {
         List<Email> emails = emailRepository.findAll();
         for (Email email : emails) {
             Long accountId = email.getAccount().getId();

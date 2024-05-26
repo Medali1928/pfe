@@ -73,6 +73,9 @@ public List<Email> searchByEmail(@RequestParam String email, @PathVariable Long 
             return new ResponseEntity<>("Failed to archive email", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-   
+    @GetMapping("/search-by-domain/{accountId}")
+public List<Email> searchByDomain(@RequestParam String domainName , @PathVariable Long accountId) {
+    return emailService.getEmailsByDomain(domainName,accountId);
+}
 
 }

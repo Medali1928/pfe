@@ -38,8 +38,10 @@ import org.springframework.stereotype.Service;
 import com.example.demo.entitys.Account;
 import com.example.demo.entitys.ArchivedEmail;
 import com.example.demo.entitys.Attachment;
+import com.example.demo.entitys.DomainEntity;
 import com.example.demo.entitys.Email;
 import com.example.demo.repository.ArchivedEmailRepository;
+import com.example.demo.repository.DomainEntityRepository;
 import com.example.demo.repository.EmailRepository;
 
 import org.apache.commons.io.IOUtils;
@@ -62,8 +64,16 @@ public class EmailService1 {
     private AccountService emailAccountService;
     @Autowired
     private ArchivedEmailRepository archivedEmailRepository;
-   
+    @Autowired
+    private DomainEntityRepository domainEntityRepository;
 
+    public List<Email> getEmailsByDomain(String domainName,Long accountId) {
+        Account account = emailAccountService.findById(accountId);
+        if (account == null) {
+            throw new IllegalArgumentException("Email account not found with ID: " + accountId);
+        }
+        return emailRepository.findBySenderContainingIgnoreCaseAndAccountId(domainName,accountId);
+    }
     
     public void fetchAndSaveEmails(Long emailAccountId) {
         // Récupérer les informations de connexion à partir de la base de données
@@ -106,6 +116,7 @@ public class EmailService1 {
             // Parcourir les messages et les enregistrer dans la base de données
             for (Message message : messages) {
                 saveMessageToDatabase(message, emailAccount);
+                saveDomaineToDatabase(message, emailAccount);
             }
 
             // Fermer le dossier de la boîte de réception et le magasin
@@ -114,6 +125,23 @@ public class EmailService1 {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    private void saveDomaineToDatabase(Message message, Account emailAccount) {
+        try {
+            DomainEntity domainEntity = new DomainEntity();
+            String sender = ((InternetAddress) message.getFrom()[0]).getAddress();
+            String domainName = extractDomain(sender);
+            domainEntity.setDomainName(domainName);
+           domainEntityRepository.save(domainEntity);
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String extractDomain(String email) {
+        // Extract the domain from the email address
+        String[] parts = email.split("@");
+        return parts.length == 2 ? parts[1] : null;
     }
     private String extractTextFromHtml(String htmlContent) {
         Document doc = Jsoup.parseBodyFragment(htmlContent);
@@ -134,8 +162,6 @@ public class EmailService1 {
         return sb.toString().trim(); // Supprimer les espaces blancs inutiles à la fin
     }
     
-    
-    
     private void saveMessageToDatabase(Message message, Account account) {
         try {
             // Extraire les informations de l'e-mail
@@ -155,24 +181,6 @@ public class EmailService1 {
                 // Si un e-mail existe déjà avec le même sujet et la même date, ne rien faire
                 return;
             }
-
-           // Extraire le corps du message
-        /*String body = "";
-        Object content = message.getContent();
-        if (content instanceof String) {
-            body = (String) content;
-        } else if (content instanceof Multipart) {
-            Multipart multipart = (Multipart) content;
-            for (int i = 0; i < multipart.getCount(); i++) {
-                BodyPart bodyPart = multipart.getBodyPart(i);
-                if (bodyPart.getContentType().startsWith("text/plain")) {
-                    body += bodyPart.getContent().toString();
-                } else if (bodyPart.getContentType().startsWith("text/html")) {
-                    // Si le contenu est HTML, extrayez uniquement le texte
-                    body += extractTextFromHtml(bodyPart.getContent().toString());
-                }
-            }
-        }*/
        
         // Extraire le corps du message
         StringBuilder bodyBuilder = new StringBuilder();
@@ -268,6 +276,7 @@ public class EmailService1 {
         // Supprimer la virgule et l'espace à la fin
         return result.substring(0, result.length() - 2);
     }
+    
     public List<Email> searchEmails(Long accountId, String sender, String subject, LocalDate startDate, LocalDate endDate) {
         Account account = emailAccountService.findById(accountId);
         if (account == null) {

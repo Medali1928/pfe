@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 
 public interface ArchivingRuleRepository extends JpaRepository<ArchivingRule, Long> {
-   
+   public ArchivingRule findByaccountId(Long accountId);
 }
