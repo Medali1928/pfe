@@ -40,6 +40,9 @@ public class  UserController {
     @Autowired
     private UserService userService;
     private UserRepository userRepository; // Assurez-vous que UserRepository est correctement configuré
+    
+    @Autowired
+    
 
 
     @CrossOrigin(origins = "http://localhost:8088")
@@ -77,17 +80,17 @@ public class  UserController {
 
     @PostMapping("/AddUser")
     public User addUser(@RequestBody User user) {
-        // Traiter et valider le user reçue
+        // Encrypt the password
+        String encryptedPassword = passwordEncoder.encode(user.getPassword());
 
+        // Create a new user object and set its properties
         User nouvelleUser = new User();
-        nouvelleUser.setPassword(user.getPassword());
-        
+        nouvelleUser.setPassword(encryptedPassword);
         nouvelleUser.setEmail(user.getEmail());
         nouvelleUser.setUsername(user.getUsername());
+        nouvelleUser.setRole(user.getRole());
 
-
-        // Sauvegarder la nouvelle maison dans la base de données
-
+        // Save the new user in the database
         nouvelleUser = userService.save(nouvelleUser);
 
         return nouvelleUser;
@@ -188,6 +191,12 @@ public class  UserController {
            
             maison.setUsername(maisonDetails.getUsername());
             maison.setEmail(maisonDetails.getEmail());
+            maison.setRole(maisonDetails.getRole());
+            if (maisonDetails.getPassword() != null && !maisonDetails.getPassword().isEmpty()) {
+                String encryptedPassword = passwordEncoder.encode(maisonDetails.getPassword());
+                maison.setPassword(encryptedPassword);
+            }
+
            
 
             // Enregistrer la maison mise à jour dans la base de données

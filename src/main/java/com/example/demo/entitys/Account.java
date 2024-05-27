@@ -10,6 +10,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 
 @Entity
@@ -30,6 +32,7 @@ public class Account {
 		this.user = user;
 	}
 	@ManyToOne//optional = false
+    @JsonIgnore
     private User user;
 	/*@OneToOne
 	private ArchivingRule archivingRule;
@@ -68,7 +71,7 @@ public class Account {
 	public void setServeur(String serveur) {
 		this.serveur = serveur;
 	}
-	public Account(Long id, String password, String Email, String port, String serveur) {
+	public Account(Long id, String password, String Email, String port, String serveur,User user) {
 		super();
 		this.id = id;
 		this.password = password;
@@ -76,6 +79,7 @@ public class Account {
 		
 		this.port = port;
 		this.serveur = serveur;
+		this.user = user;
 	}
 	public Account() {
 		super();

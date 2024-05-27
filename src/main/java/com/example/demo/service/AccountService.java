@@ -6,12 +6,12 @@ import com.example.demo.entitys.Account;
 
 public interface AccountService {
 	
-	public Account save(Account emailAccount);
-	public Account findById(Long id);
-	public List<Account> getAllEmailAccountsFromDatabase();
-	public Account updateAccount(Long accountId, Account updatedAccount);
-	public void delete(Account account);
-	
-
+	Account save(Integer userId, Account account);
+    Account findById(Long id);
+    List<Account> getAllEmailAccountsFromDatabase();
+    Account updateAccount(Long accountId, Integer userId, Account updatedAccount);
+    void delete(Long accountId, Integer userId);
+    List<Account> getAccountsByUserId(Integer userId);
+    Account getAccountByIdAndUserId(Long id, Integer userId);
 
 }

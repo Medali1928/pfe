@@ -7,75 +7,71 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.entitys.Account;
+import com.example.demo.entitys.User;
 import com.example.demo.repository.AccountRepository;
+import com.example.demo.repository.UserRepository;
 
 @Service
-
 public class AccountServiceImpl implements AccountService {
-	
 
-/* 	@Override
-	public Account addCompte(Account account) {
-		
-		return accountRepo.save(account);
-	}
+    @Autowired
+    private AccountRepository accountRepo;
 
-	@Override
-	public String DeleteCompte(Long account_id) {
-		Account cpt=accountRepo.findById(account_id).get();
-		String ch="";
-		if(cpt!=null) {
-			accountRepo.deleteById(account_id);
-			ch="account deleted";
-		}else {ch="id account not found ";
-		}
-		return ch;}
+    @Autowired
+    private UserRepository userRepo;
 
-	@Override
-	public Account updateAccount(Long account_Id, Account account) {
-		Account cpt = accountRepo.findById(account_Id).get();
-		 if(cpt != null) {
-			 cpt.setEmail(account.getEmail());
-			 cpt.setPassword(account.getPassword());
-			 cpt .setRole(account.getRole());
-			 cpt.setPort(account.getPort());
-			 cpt.setServeur(account.getServeur());
-	     
-		 }
-		return accountRepo.save(cpt);
-	}*/
-	@Autowired
-    private AccountRepository emailAccountRepository;
-
-    public Account save(Account emailAccount) {
-        return emailAccountRepository.save(emailAccount);
+    @Override
+    public Account save(Integer userId, Account account) {
+        Optional<User> userOptional = userRepo.findById(userId);
+        if (userOptional.isPresent()) {
+            account.setUser(userOptional.get());
+            return accountRepo.save(account);
+        } else {
+            throw new RuntimeException("User not found with id: " + userId);
+        }
     }
 
+    @Override
     public Account findById(Long id) {
-        return emailAccountRepository.findById(id).orElse(null);
+        return accountRepo.findById(id).orElse(null);
     }
-	public List<Account> getAllEmailAccountsFromDatabase() {
-        return emailAccountRepository.findAll(); // Utilisez la méthode appropriée de votre repository pour récupérer tous les comptes
+
+    @Override
+    public List<Account> getAllEmailAccountsFromDatabase() {
+        return accountRepo.findAll();
     }
-	
-    public Account updateAccount(Long accountId, Account updatedAccount) {
-        Optional<Account> optionalAccount = emailAccountRepository.findById(accountId);
-        if (optionalAccount.isPresent()) {
-            Account existingAccount = optionalAccount.get();
+
+    @Override
+    public Account updateAccount(Long accountId, Integer userId, Account updatedAccount) {
+        Account existingAccount = getAccountByIdAndUserId(accountId, userId);
+        if (existingAccount != null) {
             existingAccount.setPassword(updatedAccount.getPassword());
             existingAccount.setEmail(updatedAccount.getEmail());
             existingAccount.setPort(updatedAccount.getPort());
             existingAccount.setServeur(updatedAccount.getServeur());
-            // Sauvegarder le compte mis à jour dans la base de données
-            return emailAccountRepository.save(existingAccount);
+            return accountRepo.save(existingAccount);
         } else {
-            throw new RuntimeException("Account not found with id: " + accountId);
+            throw new RuntimeException("Account not found with id: " + accountId + " and userId: " + userId);
         }
     }
-	public void delete(Account account) {
-		emailAccountRepository.delete(account);
+
+    @Override
+    public void delete(Long accountId, Integer userId) {
+        Account existingAccount = getAccountByIdAndUserId(accountId, userId);
+        if (existingAccount != null) {
+            accountRepo.delete(existingAccount);
+        } else {
+            throw new RuntimeException("Account not found with id: " + accountId + " and userId: " + userId);
+        }
     }
 
-	}
+    @Override
+    public List<Account> getAccountsByUserId(Integer userId) {
+        return accountRepo.findByUserId(userId);
+    }
 
-
+    @Override
+    public Account getAccountByIdAndUserId(Long id, Integer userId) {
+        return accountRepo.findByIdAndUserId(id, userId);
+    }
+}

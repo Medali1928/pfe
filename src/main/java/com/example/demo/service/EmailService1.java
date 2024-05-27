@@ -128,15 +128,27 @@ public class EmailService1 {
     }
     private void saveDomaineToDatabase(Message message, Account emailAccount) {
         try {
-            DomainEntity domainEntity = new DomainEntity();
             String sender = ((InternetAddress) message.getFrom()[0]).getAddress();
             String domainName = extractDomain(sender);
-            domainEntity.setDomainName(domainName);
-           domainEntityRepository.save(domainEntity);
-        }catch(Exception e) {
+            
+            // Vérifier si le domaine existe déjà dans la base de données
+            DomainEntity existingDomain = domainEntityRepository.findByDomainName(domainName);
+            if (existingDomain == null) {
+                // Le domaine n'existe pas encore, donc nous pouvons l'ajouter à la base de données
+                DomainEntity domainEntity = new DomainEntity();
+                domainEntity.setDomainName(domainName);
+                domainEntityRepository.save(domainEntity);
+            } else {
+                // Le domaine existe déjà, vous pouvez gérer cela selon vos besoins
+                // Par exemple, vous pouvez simplement ne rien faire ou mettre à jour l'entrée existante
+                // Si nécessaire, vous pouvez ajouter du code ici pour gérer les cas où le domaine existe déjà
+            }
+        } catch (Exception e) {
             e.printStackTrace();
+            // Gérer les exceptions correctement selon vos besoins
         }
     }
+    
 
     private String extractDomain(String email) {
         // Extract the domain from the email address
@@ -202,6 +214,8 @@ public class EmailService1 {
                    }catch(MessagingException ef){
 
                    }
+                } else if(bodyPart.getContentType().contains("TEXT/HTML")){
+                    bodyBuilder.append(bodyPart.getContent().toString()); 
                 }
             }
         }

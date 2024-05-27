@@ -1,6 +1,7 @@
 package com.example.demo.entitys;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -18,7 +19,7 @@ public class ArchivingRule {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id ;
     
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     private Account account;
 
     private RetentionPeriodEnum retentionPeriod;
