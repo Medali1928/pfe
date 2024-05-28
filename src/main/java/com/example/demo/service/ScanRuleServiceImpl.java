@@ -82,6 +82,9 @@ public class ScanRuleServiceImpl implements ScanRuleService {
             throw new EntityNotFoundException("ScanRule not found with id: " + id);
         }
     }
+    public List<ScanRule> getAllScanRules() {
+        return scanRuleRepository.findAll();
+    }
 
 
 }
