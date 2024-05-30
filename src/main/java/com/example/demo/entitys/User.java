@@ -2,7 +2,8 @@ package com.example.demo.entitys;
 
 import com.example.demo.token.Token;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -44,13 +46,14 @@ public class User implements UserDetails {
     private Role role;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     private List<Token> tokens;
 
 
     @Column
     private String resetToken;
     @OneToMany(mappedBy = "user")
+    @JsonIgnoreProperties("user")
     private List<Account> accounts;
 	
     @Override

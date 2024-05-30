@@ -3,6 +3,8 @@ package com.example.demo.controller;
 
 
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,5 +29,10 @@ public class ArchivingRuleController {
     public ResponseEntity<ArchivingRule> updateArchivingRule(@PathVariable Long id, @RequestBody ArchivingRule archivingRuleDetails) {
         ArchivingRule updatedArchivingRule = archivingRuleService.updateArchivingRule(id, archivingRuleDetails);
         return ResponseEntity.ok(updatedArchivingRule);
+    }
+    @GetMapping
+    public ResponseEntity<List<ArchivingRule>> getAllArchivingRules() {
+        List<ArchivingRule> archivingRules = archivingRuleService.getAllArchivingRules();
+        return ResponseEntity.ok(archivingRules);
     }
 }

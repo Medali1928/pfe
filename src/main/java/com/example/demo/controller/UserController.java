@@ -67,6 +67,7 @@ public class  UserController {
   user1.setUsername(user.get().getUsername());
   user1.setRole(user.get().getRole());
   user1.setPassword(user.get().getPassword());
+  user1.setAccounts(user.get().getAccounts());
         return user1;
     }
     @CrossOrigin(origins = "http://localhost:8088")
@@ -181,30 +182,30 @@ public class  UserController {
   @CrossOrigin(origins = "http://localhost:8088")
 
     @PutMapping("/modifieruser/{id}")
-    public User updateMaison(@PathVariable("id") Integer id, @RequestBody User maisonDetails) {
+    public User update(@PathVariable("id") Integer id, @RequestBody User user) {
         Optional<User> optionalMaison = userService.findById(id);
 
         if (optionalMaison.isPresent()) {
-            User maison = optionalMaison.get();
+            User userr = optionalMaison.get();
 
-            // Mettre à jour les champs de la maison avec les détails reçus
+            
            
-            maison.setUsername(maisonDetails.getUsername());
-            maison.setEmail(maisonDetails.getEmail());
-            maison.setRole(maisonDetails.getRole());
-            if (maisonDetails.getPassword() != null && !maisonDetails.getPassword().isEmpty()) {
-                String encryptedPassword = passwordEncoder.encode(maisonDetails.getPassword());
-                maison.setPassword(encryptedPassword);
+            userr.setUsername(user.getUsername());
+            userr.setEmail(user.getEmail());
+            userr.setRole(user.getRole());
+            if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+                String encryptedPassword = passwordEncoder.encode(user.getPassword());
+                userr.setPassword(encryptedPassword);
             }
 
            
 
-            // Enregistrer la maison mise à jour dans la base de données
-            maison = userService.save(maison);
+            
+            userr = userService.save( userr);
 
-            return maison;
+            return  userr;
         } else {
-            // Ou renvoyer une réponse appropriée en cas de maison non trouvée
+            
             return null;
         }
     }
