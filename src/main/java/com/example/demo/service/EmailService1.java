@@ -30,6 +30,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.search.AndTerm;
 import javax.mail.search.FlagTerm;
 import javax.mail.search.ReceivedDateTerm;
+import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -40,6 +41,7 @@ import com.example.demo.entitys.ArchivedEmail;
 import com.example.demo.entitys.Attachment;
 import com.example.demo.entitys.DomainEntity;
 import com.example.demo.entitys.Email;
+import com.example.demo.repository.AccountRepository;
 import com.example.demo.repository.ArchivedEmailRepository;
 import com.example.demo.repository.DomainEntityRepository;
 import com.example.demo.repository.EmailRepository;
@@ -66,6 +68,9 @@ public class EmailService1 {
     private ArchivedEmailRepository archivedEmailRepository;
     @Autowired
     private DomainEntityRepository domainEntityRepository;
+    @Autowired
+    private AccountRepository accountRepository;
+
 
     public List<Email> getEmailsByDomain(String domainName,Long accountId) {
         Account account = emailAccountService.findById(accountId);
@@ -76,78 +81,92 @@ public class EmailService1 {
     }
     
     public void fetchAndSaveEmails(Long emailAccountId) {
-        // Récupérer les informations de connexion à partir de la base de données
-     
+        // Retrieve the email account information from the database
         Account emailAccount = emailAccountService.findById(emailAccountId);
         if (emailAccount == null) {
             throw new IllegalArgumentException("Email account not found with ID: " + emailAccountId);
         }
-       // Configurer les propriétés pour l'accès IMAP
+    
+        // Configure properties for IMAP access
         Properties properties = new Properties();
         properties.put("mail.store.protocol", "imaps");
         properties.put("mail.imaps.host", emailAccount.getServeur());
         properties.put("mail.imaps.port", emailAccount.getPort());
-        //properties.put("mail.imaps.host", "imap.gmail.com");
-       // properties.put("mail.imaps.port", "993");
         properties.put("mail.imaps.starttls.enable", "true");
-        //String email = "alouloumed21@gmail.com";
-        //String password = "vssd tysc xlcg mabg";
+    
         try {
-            // Créer une session avec les propriétés configurées
+            // Create a session with the configured properties
             Session session = Session.getInstance(properties);
             Store store = session.getStore("imaps");
-           store.connect(emailAccount.getEmail(), emailAccount.getPassword());
-    //store.connect(email, password);
-
-            // Ouvrir le dossier de la boîte de réception en lecture seule
+            store.connect(emailAccount.getEmail(), emailAccount.getPassword());
+    
+            // Open the INBOX folder in read-only mode
             Folder inbox = store.getFolder("INBOX");
             inbox.open(Folder.READ_ONLY);
-   // Date de référence : 08/05/2024
-   LocalDate referenceDate = LocalDate.of(2024, 5, 8);
-   Date fromDate = Date.from(referenceDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-
-   // Rechercher les messages non lus après la date de référence
-   FlagTerm unreadFlagTerm = new FlagTerm(new javax.mail.Flags(javax.mail.Flags.Flag.SEEN), false);
-   ReceivedDateTerm receivedDateTerm = new ReceivedDateTerm(javax.mail.search.ComparisonTerm.GT, fromDate);
-   AndTerm searchTerm = new AndTerm(unreadFlagTerm, receivedDateTerm);
-   Message[] messages = inbox.search(searchTerm);
-
-
-            // Parcourir les messages et les enregistrer dans la base de données
+    
+            // Determine the date to fetch emails from
+            LocalDate referenceDate = emailAccount.getLastFetchDate();
+            if (referenceDate == null) {
+                // If no last fetch date, fetch all emails
+                referenceDate = LocalDate.of(1970, 1, 1);
+            }
+            Date fromDate = Date.from(referenceDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    
+            // Search for messages after the reference date
+            ReceivedDateTerm receivedDateTerm = new ReceivedDateTerm(javax.mail.search.ComparisonTerm.GT, fromDate);
+            Message[] messages = inbox.search(receivedDateTerm);
+    
+            // Process the messages
             for (Message message : messages) {
                 saveMessageToDatabase(message, emailAccount);
                 saveDomaineToDatabase(message, emailAccount);
             }
-
-            // Fermer le dossier de la boîte de réception et le magasin
+    
+            // Update the last fetch date
+            if (messages.length > 0) {
+                Message latestMessage = messages[messages.length - 1];
+                LocalDate latestMessageDate = latestMessage.getReceivedDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                emailAccount.setLastFetchDate(latestMessageDate);
+                accountRepository.save(emailAccount); // Save the updated account with the new last fetch date
+                System.out.println("Updated last fetch date to: " + latestMessageDate);
+            } else {
+                System.out.println("No new messages found.");
+            }
+    
+            // Close the inbox folder and store
             inbox.close(true);
             store.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+    
+    
+    @Transactional
     private void saveDomaineToDatabase(Message message, Account emailAccount) {
         try {
             String sender = ((InternetAddress) message.getFrom()[0]).getAddress();
             String domainName = extractDomain(sender);
-            
+
             // Vérifier si le domaine existe déjà dans la base de données
             DomainEntity existingDomain = domainEntityRepository.findByDomainName(domainName);
             if (existingDomain == null) {
                 // Le domaine n'existe pas encore, donc nous pouvons l'ajouter à la base de données
-                DomainEntity domainEntity = new DomainEntity();
-                domainEntity.setDomainName(domainName);
-                domainEntityRepository.save(domainEntity);
-            } else {
-                // Le domaine existe déjà, vous pouvez gérer cela selon vos besoins
-                // Par exemple, vous pouvez simplement ne rien faire ou mettre à jour l'entrée existante
-                // Si nécessaire, vous pouvez ajouter du code ici pour gérer les cas où le domaine existe déjà
+                existingDomain = new DomainEntity();
+                existingDomain.setDomainName(domainName);
+                domainEntityRepository.save(existingDomain);
+            }
+
+            // Ajouter le domaine à l'utilisateur si ce n'est pas déjà fait
+            if (!emailAccount.getDomains().contains(existingDomain)) {
+                emailAccount.getDomains().add(existingDomain);
+                accountRepository.save(emailAccount);  // Sauvegarder les modifications dans l'utilisateur
             }
         } catch (Exception e) {
             e.printStackTrace();
-            // Gérer les exceptions correctement selon vos besoins
         }
     }
+    
     
 
     private String extractDomain(String email) {
@@ -331,9 +350,16 @@ public class EmailService1 {
     }
     
     public void archiveEmail(Long emailId, Long accountId) {
-        // Rechercher l'email dans la base de données
-        Email email = emailRepository.findByIdAndAccountId(emailId, accountId);
-        if (email != null) {
+        try {
+            // Rechercher l'email dans la base de données
+            Email email = emailRepository.findByIdAndAccountId(emailId, accountId);
+            if (email == null) {
+                throw new IllegalArgumentException("Email not found for id: " + emailId);
+            }
+    
+            List<Attachment> attatchmentss = new ArrayList<Attachment>();
+            attatchmentss.addAll(email.getAttachments());
+            
             // Créer une instance d'ArchivedEmail à partir de l'email à archiver
             ArchivedEmail archivedEmail = new ArchivedEmail(
                 email.getSender(),
@@ -341,17 +367,31 @@ public class EmailService1 {
                 email.getSubject(),
                 email.getBody(),
                 email.getDate(),
-                email.getAttachments(),
+                attatchmentss,
                 email.getAccount()
             );
+    
             // Enregistrer l'ArchivedEmail dans la table correspondante
             archivedEmailRepository.save(archivedEmail);
+    
             // Supprimer l'email de la table Email
             emailRepository.delete(email);
-        } else {
-            throw new IllegalArgumentException("Email not found for id: " + emailId);
+    
+        } catch (IllegalArgumentException e) {
+            // Rejeter les exceptions spécifiques
+            throw e;
+        } catch (Exception e) {
+            // Gérer les autres exceptions et imprimer la trace
+            e.printStackTrace();
+            throw new RuntimeException("Failed to archive email", e);
         }
     }
+    
+    public Email getEmailById(Long emailId) {
+        Optional<Email> email = emailRepository.findById(emailId);
+        return email.orElse(null);
+    }
+
 
     
    

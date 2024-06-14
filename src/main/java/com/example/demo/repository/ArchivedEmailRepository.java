@@ -16,5 +16,6 @@ public interface ArchivedEmailRepository extends JpaRepository<ArchivedEmail,Lon
     List<ArchivedEmail> findBySenderAndDateBetweenAndAccountId(String sender, LocalDate startDate, LocalDate endDate, Long accountId);
     void deleteAllByDateBeforeAndAccountId(LocalDate date, Long accountId);
     java.util.Optional<ArchivedEmail> findByIdAndAccountId(Long id, Long accountId);
+   
 
 }

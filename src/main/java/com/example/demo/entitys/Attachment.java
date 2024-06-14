@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 @Entity
 public class Attachment {
@@ -12,6 +13,9 @@ public class Attachment {
 	 private Long id;
 
     private String path;
+
+
+
 
 	public Attachment() {
 		super();

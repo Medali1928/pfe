@@ -8,5 +8,5 @@ public interface ArchivingRuleService {
     
     public ArchivingRule addArchivingRule(ArchivingRule archivingRule);
     public ArchivingRule updateArchivingRule(Long id, ArchivingRule archivingRuleDetails) ;
-    public List<ArchivingRule> getAllArchivingRules();
+    public List<ArchivingRule> getAllArchivingRules(Long accountId);
 }

@@ -74,7 +74,7 @@ public class Email {
 	}
 
 	public Email(Long id, String sender, String recipients, String subject, String body, LocalDate date,
-			List<Attachment> attachments) {
+			List<Attachment> attachments,Account account) {
 		super();
 		this.id = id;
 		this.sender = sender;
@@ -83,6 +83,7 @@ public class Email {
 		this.body = body;
 		this.date = date;
 		this.attachments = attachments;
+		this.account=this.account;
 	}
 
 	public Long getId() {

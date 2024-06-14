@@ -2,6 +2,8 @@ package com.example.demo.controller;
 
 import java.time.LocalDate;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,7 @@ import com.example.demo.service.ArchivedEmailService;
 public class ArchivedEmailController {
      @Autowired
     private ArchivedEmailService archivedEmailService;
+    private static final Logger logger = LoggerFactory.getLogger(ArchivedEmailController.class);
 
     @PostMapping("/archiver/emails")
     public ResponseEntity<String> archiverEmailsSelonRegles() {
@@ -69,5 +72,28 @@ public class ArchivedEmailController {
         archivedEmailService.deleteArchivedEmailsOlderThanOneYear(accountId);
         return new ResponseEntity<>("E-mails archivés de plus d'un an supprimés avec succès.", HttpStatus.OK);
     }
+    @PostMapping("/unarchive/{archivedEmailId}/{accountId}")
+    public ResponseEntity<String> unarchiveEmail(@PathVariable Long archivedEmailId, @PathVariable Long accountId) {
+        try {
+            archivedEmailService.unarchiveEmail(archivedEmailId, accountId);
+            logger.info("Email unarchived successfully. Account ID: {}", accountId);
+            return ResponseEntity.ok("Email unarchived successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+    
+    @GetMapping("/archive/{emailId}")
+public ResponseEntity<ArchivedEmail> getArchivedEmailById(@PathVariable Long emailId) {
+    ArchivedEmail archivedEmail = archivedEmailService.getArchivedEmailById(emailId);
+    if (archivedEmail != null) {
+        return ResponseEntity.ok(archivedEmail);
+    } else {
+        return ResponseEntity.notFound().build();
+    }
+}
+
 
 }

@@ -3,18 +3,31 @@ package com.example.demo.entitys;
 
 
 
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.persistence.Entity;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+
+import org.springframework.security.core.GrantedAuthority;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 
 @Entity
 public class Account {
@@ -26,12 +39,20 @@ public class Account {
 	
 	private String port;
 	private String serveur;
+	private LocalDate lastFetchDate;
 	
 	public User getUser() {
 		return user;
 	}
 	public void setUser(User user) {
 		this.user = user;
+	}
+	public LocalDate getLastFetchDate() {
+		return lastFetchDate;
+	}
+	
+	public void setLastFetchDate(LocalDate lastFetchDate) {
+		this.lastFetchDate = lastFetchDate;
 	}
 	@ManyToOne//optional = false
      @JsonIgnoreProperties("accounts")
@@ -40,6 +61,16 @@ public class Account {
 	private ArchivingRule archivingRule;
 	@OneToOne
 	private ScanRule scanRule;*/
+	 @ManyToMany
+    @JoinTable(
+        name = "account_domain",
+        joinColumns = @JoinColumn(name = "account_id"),
+        inverseJoinColumns = @JoinColumn(name = "domain_id")
+    )
+	@JsonIgnore
+    private Set<DomainEntity> domains = new HashSet<>();
+
+	 
 
 	
 	public Long getId() {

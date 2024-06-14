@@ -30,6 +30,7 @@ public interface EmailRepository extends JpaRepository<Email,Long>{
 	List<Email> findByAccountId(Long accountId);
     Email findByIdAndAccountId(Long emailId, Long accountId);
 	List<Email> findBySenderContainingIgnoreCaseAndAccountId(String domainName, Long accountId);
+	Email getEmailById(Long emailId);
 }
 
    

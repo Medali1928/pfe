@@ -16,5 +16,7 @@ public interface ArchivedEmailService {
     public void deleteArchivedEmail(Long accountId, ArchivedEmail archivedEmail);
     public ArchivedEmail getArchivedEmailById(Long accountId, Long id);
     public void deleteArchivedEmailsOlderThanOneYear(Long accountId);
+    public void unarchiveEmail(Long archivedEmailId, Long accountId);
+    public ArchivedEmail getArchivedEmailById(Long emailId);
 
 }

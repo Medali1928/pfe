@@ -42,4 +42,9 @@ public class DomainEntityController {
             return ResponseEntity.notFound().build();
         }
     }
+    @GetMapping("/{accountId}/domain-entities")
+    public ResponseEntity<List<DomainEntity>> getAllDomainEntitiesByAccountId(@PathVariable Long accountId) {
+        List<DomainEntity> domainEntities = domainEntityService.getAllDomainEntitiesByAccountId(accountId);
+        return ResponseEntity.ok(domainEntities);
+    }
 }

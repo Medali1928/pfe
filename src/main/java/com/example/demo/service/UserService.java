@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.example.demo.entitys.PasswordResetToken;
+import com.example.demo.entitys.Role;
 import com.example.demo.entitys.User;
 
 public interface UserService {
@@ -29,4 +30,5 @@ public interface UserService {
 
     void removeOne(Integer id);
     public List<User> searchByPropertyName(String username);
+    public void updateUserRole(Integer userId, Role role);
 }

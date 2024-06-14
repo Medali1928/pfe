@@ -44,8 +44,7 @@ public class ArchivingRuleServiceImpl implements ArchivingRuleService {
 
         return archivingRuleRepository.save(archivingRule);
     }
-    public List<ArchivingRule> getAllArchivingRules() {
-        return archivingRuleRepository.findAll();
+    public List<ArchivingRule> getAllArchivingRules(Long accountId) {
+        return archivingRuleRepository.findByAccountId(accountId);
     }
-
 }

@@ -30,9 +30,10 @@ public class ArchivingRuleController {
         ArchivingRule updatedArchivingRule = archivingRuleService.updateArchivingRule(id, archivingRuleDetails);
         return ResponseEntity.ok(updatedArchivingRule);
     }
-    @GetMapping
-    public ResponseEntity<List<ArchivingRule>> getAllArchivingRules() {
-        List<ArchivingRule> archivingRules = archivingRuleService.getAllArchivingRules();
+    
+    @GetMapping("/account/{accountId}")
+    public ResponseEntity<List<ArchivingRule>> getAllArchivingRulesByAccountId(@PathVariable Long accountId) {
+        List<ArchivingRule> archivingRules = archivingRuleService.getAllArchivingRules(accountId);
         return ResponseEntity.ok(archivingRules);
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.entitys.PasswordResetToken;
+import com.example.demo.entitys.Role;
 import com.example.demo.entitys.User;
 import com.example.demo.repository.PasswordResetTokenRepository;
 import com.example.demo.repository.UserRepository;
@@ -73,5 +74,12 @@ public class UserImpl  implements UserService {
     @Override
     public List<User> searchByPropertyName(String username) {
         return userRepository.searchByPropertyName(username);
+    }
+    @Override
+    public void updateUserRole(Integer userId, Role role) {
+        User user = userRepository.findById(userId)
+                                  .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+        user.setRole(role);
+        userRepository.save(user);
     }
 }

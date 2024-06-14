@@ -18,11 +18,14 @@ import com.example.demo.service.EmailService;
 import com.example.demo.service.UserService;
 import com.example.demo.utility.MailConstructor;
 import com.example.demo.utility.SecurityUtility;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import com.example.demo.entitys.Role;
 
 @RestController
 
@@ -179,9 +182,9 @@ public class  UserController {
         return ResponseEntity.ok(isUnique);
     }
 
-  @CrossOrigin(origins = "http://localhost:8088")
+  //@CrossOrigin(origins = "http://localhost:8088")
 
-    @PutMapping("/modifieruser/{id}")
+   /*  @PutMapping("/modifieruser/{id}")
     public User update(@PathVariable("id") Integer id, @RequestBody User user) {
         Optional<User> optionalMaison = userService.findById(id);
 
@@ -208,7 +211,7 @@ public class  UserController {
             
             return null;
         }
-    }
+    }*/
 
 
 @CrossOrigin(origins = "http://localhost:8088")
@@ -240,5 +243,26 @@ public class  UserController {
         List<User> maisons = userService.searchByPropertyName(username);
         return ResponseEntity.ok(maisons);
     }
-
+    @CrossOrigin(origins = "http://localhost:8088")
+    
+    @PutMapping("/modifieruser/{id}")
+    public User updateRole(@PathVariable("id") Integer id, @RequestParam("role") Role role) {
+        Optional<User> optionalUser = userService.findById(id);
+    
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+    
+            // Mettre à jour uniquement le rôle de l'utilisateur
+            user.setRole(role);
+    
+            // Enregistrer l'utilisateur mis à jour dans la base de données
+            user = userService.save(user);
+    
+            return user;
+        } else {
+            // Gérer le cas où l'utilisateur n'est pas trouvé
+            return null;
+        }
+    }
+    
 }
